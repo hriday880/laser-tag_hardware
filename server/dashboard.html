@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laser Tag Arena - Mark 4</title>
+<style>
+  :root {
+    --bg: #0b0f17; --card: #141a26; --line: #232b3b; --text: #e6ebf5; --mute: #8a94a8;
+    --green: #2ee59d; --yellow: #ffd23f; --red: #ff4d6d; --blue: #4da3ff; --purple: #b57bff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         background: var(--bg); color: var(--text); }
+  header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+           padding: 14px 20px; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 18px; margin: 0; letter-spacing: .5px; }
+  header h1 span { color: var(--red); }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 16px; display: grid; gap: 16px;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .card h2 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--mute); }
+  .span2 { grid-column: span 2; }
+  @media (max-width: 700px) { .span2 { grid-column: span 1; } }
+  .phase { display: inline-block; padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; }
+  .ph-LOBBY { background: #1f2a44; color: var(--blue); }
+  .ph-COUNTDOWN { background: #3a3415; color: var(--yellow); }
+  .ph-LIVE { background: #123828; color: var(--green); }
+  .ph-PAUSED { background: #2c1f44; color: var(--purple); }
+  .ph-GAMEOVER { background: #3d1620; color: var(--red); }
+  .timer { font-size: 64px; font-weight: 800; font-variant-numeric: tabular-nums; margin: 6px 0; }
+  .hearts { font-size: 34px; letter-spacing: 4px; }
+  .hearts .full { color: var(--red); } .hearts .empty { color: #3a4255; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .pill { background: #1b2232; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: 14px; }
+  .pill b { font-size: 18px; display: block; }
+  button { cursor: pointer; border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 700; font-size: 14px;
+           color: #0b0f17; background: var(--text); }
+  button.go { background: var(--green); } button.warn { background: var(--yellow); }
+  button.bad { background: var(--red); color: #fff; } button.ghost { background: #232b3b; color: var(--text); }
+  button:disabled { opacity: .35; cursor: not-allowed; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { padding: 7px 6px; text-align: left; border-bottom: 1px solid var(--line); }
+  th { color: var(--mute); font-weight: 600; font-size: 12px; text-transform: uppercase; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tag { font-size: 11px; padding: 2px 7px; border-radius: 6px; font-weight: 700; }
+  .t-FRIEND { background: #123828; color: var(--green); } .t-ENEMY { background: #3d1620; color: var(--red); }
+  .t-TRAITOR { background: #3a3415; color: var(--yellow); }
+  .feed { max-height: 330px; overflow-y: auto; font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+  .feed div { padding: 5px 0; border-bottom: 1px dashed var(--line); }
+  .k-bad { color: #ff8fa3; } .k-good { color: var(--green); } .k-warn { color: var(--yellow); }
+  .k-system { color: var(--blue); } .k-dim { color: var(--mute); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .on { background: var(--green); box-shadow: 0 0 8px var(--green); } .off { background: var(--red); }
+  .settings { display: grid; grid-template-columns: 1fr 90px; gap: 8px 10px; align-items: center; font-size: 14px; }
+  .settings input { width: 100%; background: #0f1420; color: var(--text); border: 1px solid var(--line);
+                    border-radius: 8px; padding: 6px 8px; font-size: 14px; }
+  .rules li { margin-bottom: 6px; font-size: 14px; color: #c9d1e2; }
+  .mute { color: var(--mute); font-size: 13px; }
+  .banner { font-size: 22px; font-weight: 800; margin-top: 8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>LASER TAG ARENA <span>MARK 4</span></h1>
+  <div class="row">
+    <span id="conn" class="mute">connecting...</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- MATCH -->
+  <div class="card">
+    <h2>Match</h2>
+    <span id="phase" class="phase">-</span>
+    <div id="timer" class="timer">--:--</div>
+    <div id="banner" class="banner"></div>
+    <div class="row" style="margin-top:12px">
+      <button id="bStart" class="go" onclick="ctl('start')">Start Match</button>
+      <button id="bPause" class="warn" onclick="ctl('pause')">Pause</button>
+      <button id="bResume" class="go" onclick="ctl('resume')">Resume</button>
+      <button id="bEnd" class="ghost" onclick="ctl('end')">End</button>
+      <button class="bad" onclick="if(confirm('Reset arena?'))ctl('reset')">Reset</button>
+    </div>
+  </div>
+
+  <!-- PLAYER -->
+  <div class="card">
+    <h2>Player 1</h2>
+    <div id="hearts" class="hearts"></div>
+    <div class="row" style="margin-top:10px">
+      <div class="pill">Lives<b id="lives">-</b></div>
+      <div class="pill">State<b id="pstate">-</b></div>
+      <div class="pill">Hits taken<b id="hits">0</b></div>
+      <div class="pill">Deaths<b id="deaths">0</b></div>
+      <div class="pill">Heals<b id="heals">0</b></div>
+    </div>
+    <p id="pextra" class="mute"></p>
+  </div>
+
+  <!-- NODE -->
+  <div class="card">
+    <h2>Device</h2>
+    <div style="font-size:18px;font-weight:700"><span id="ndot" class="dot off"></span><span id="nstat">OFFLINE</span></div>
+    <div class="row" style="margin-top:10px">
+      <div class="pill">IP<b id="nip">-</b></div>
+      <div class="pill">Wi-Fi signal<b id="nrssi">-</b></div>
+      <div class="pill">Last seen<b id="nseen">-</b></div>
+    </div>
+    <p class="mute" id="srv"></p>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="card span2">
+    <h2>Leaderboard</h2>
+    <table>
+      <thead><tr><th>#</th><th>Shooter</th><th>Team</th><th class="num">Hits</th><th class="num">Kills</th>
+        <th class="num">Heals</th><th class="num">Strikes</th><th class="num">Medic</th><th class="num">Score</th></tr></thead>
+      <tbody id="board"></tbody>
+    </table>
+  </div>
+
+  <!-- FEED -->
+  <div class="card">
+    <h2>Event feed</h2>
+    <div id="feed" class="feed"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="card">
+    <h2>Settings</h2>
+    <div class="settings" id="settings"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="go" onclick="saveSettings()">Save settings</button>
+      <span class="mute">HP and lives apply at the next reset.</span>
+    </div>
+  </div>
+
+  <!-- RULES -->
+  <div class="card">
+    <h2>Rules</h2>
+    <ul class="rules">
+      <li><b>Enemies 1-5</b>: each hit = -1 HP. +10 pts per hit, +50 per kill.</li>
+      <li><b>First Blood</b>: first hit of the match gets +25.</li>
+      <li><b>Finisher</b>: whoever takes the last life gets +100.</li>
+      <li><b>Friends 1-4 are Medics</b>: their shot heals +1 HP (+5 pts), then a medic cooldown.</li>
+      <li><b>Friendly fire</b>: shooting while your medic is on cooldown = a strike (-10 pts).</li>
+      <li><b>Traitor</b>: too many strikes and that friend defects. Their shots now do damage.</li>
+      <li><b>Spawn shield</b>: after respawning, shots are blocked for a few seconds.</li>
+      <li><b>Hit cooldown</b>: after taking damage, enemy shots are ignored briefly.</li>
+      <li>Survive the timer and you win. Lose all lives and the top scorer is MVP.</li>
+    </ul>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="card span2">
+    <h2>Match history</h2>
+    <table>
+      <thead><tr><th>Ended</th><th>Result</th><th class="num">Length</th><th class="num">Hits</th>
+        <th class="num">Deaths</th><th>MVP</th></tr></thead>
+      <tbody id="hist"></tbody>
+    </table>
+    <div class="row" style="margin-top:10px"><button class="ghost" onclick="if(confirm('Clear history?'))ctl('clear_history')">Clear history</button></div>
+  </div>
+</div>
+
+<script>
+const LABELS = {
+  max_hp: "Max HP", max_lives: "Lives", respawn_s: "Respawn time (s)", protect_s: "Spawn shield (s)",
+  match_s: "Match length (s)", cooldown_s: "Hit cooldown (s)", medic_cooldown_s: "Medic cooldown (s)",
+  traitor_strikes: "Strikes to turn traitor"
+};
+let settingsBuilt = false, editing = false;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const mmss = ms => { const s = Math.ceil(ms / 1000); return String(Math.floor(s/60)).padStart(2,"0") + ":" + String(s%60).padStart(2,"0"); };
+
+async function ctl(action, extra = {}) {
+  await fetch("/api/control", { method: "POST", headers: {"Content-Type": "application/json"},
+                                body: JSON.stringify({ action, ...extra }) });
+  poll();
+}
+
+function saveSettings() {
+  const s = {};
+  document.querySelectorAll("#settings input").forEach(i => s[i.name] = i.value);
+  editing = false;
+  ctl("settings", { settings: s });
+}
+
+function buildSettings(st, lim) {
+  const box = $("settings");
+  box.innerHTML = "";
+  for (const k of Object.keys(LABELS)) {
+    box.insertAdjacentHTML("beforeend",
+      `<label for="s_${k}">${LABELS[k]}</label>
+       <input id="s_${k}" name="${k}" type="number" min="${lim[k][0]}" max="${lim[k][1]}" value="${st[k]}">`);
+  }
+  box.querySelectorAll("input").forEach(i => i.addEventListener("focus", () => editing = true));
+  settingsBuilt = true;
+}
+
+function render(s) {
+  const d = s.device;
+  const ph = $("phase");
+  ph.textContent = d.ph; ph.className = "phase ph-" + d.ph;
+  $("timer").textContent = d.ph === "COUNTDOWN" ? Math.ceil(d.tm / 1000) : mmss(d.tm);
+  $("banner").textContent = d.ph === "GAMEOVER" ? `${d.res}  |  MVP: ${d.mvp}` : "";
+  $("banner").style.color = d.res === "YOU SURVIVED!" ? "var(--green)" : "var(--red)";
+
+  $("bStart").disabled = !["LOBBY", "GAMEOVER"].includes(d.ph);
+  $("bStart").textContent = d.ph === "GAMEOVER" ? "New Match" : "Start Match";
+  $("bPause").disabled = !["LIVE", "COUNTDOWN"].includes(d.ph);
+  $("bResume").disabled = d.ph !== "PAUSED";
+  $("bEnd").disabled = !["LIVE", "PAUSED", "COUNTDOWN"].includes(d.ph);
+
+  $("hearts").innerHTML = "<span class='full'>♥</span>".repeat(d.hp) + "<span class='empty'>♥</span>".repeat(d.mhp - d.hp);
+  $("lives").textContent = `${d.lv} / ${d.mlv}`;
+  $("pstate").textContent = d.st;
+  $("hits").textContent = s.stats.hits_taken;
+  $("deaths").textContent = s.stats.deaths;
+  $("heals").textContent = s.stats.heals;
+  let extra = [];
+  if (d.st === "RESPAWN") extra.push(`Respawning in ${Math.ceil(d.rs / 1000)}s`);
+  if (d.pr > 0) extra.push(`Spawn shield ${Math.ceil(d.pr / 1000)}s`);
+  if (d.cd > 0) extra.push(`Hit cooldown ${Math.ceil(d.cd / 1000)}s`);
+  extra.push(`Last attacker: ${d.last}`);
+  $("pextra").textContent = extra.join("  •  ");
+
+  const n = s.node;
+  $("ndot").className = "dot " + (n.online ? "on" : "off");
+  $("nstat").textContent = n.online ? "ONLINE" : "OFFLINE";
+  $("nip").textContent = n.ip || "-";
+  $("nrssi").textContent = n.rssi != null ? `${n.rssi} dBm` : "-";
+  $("nseen").textContent = n.last_seen_s != null ? `${n.last_seen_s}s ago` : "never";
+  $("srv").textContent = "Server: " + (s.server_ips.map(ip => `http://${ip}:5050`).join("  ") || "-");
+
+  $("board").innerHTML = s.leaderboard.map((r, i) => {
+    const team = r.traitor ? "TRAITOR" : r.team;
+    const medic = r.team === "FRIEND" && !r.traitor ? (r.medic_ready_in > 0 ? r.medic_ready_in + "s" : "ready") : "-";
+    return `<tr><td>${i + 1}</td><td>${esc(r.name)}</td><td><span class="tag t-${team}">${team}</span></td>
+      <td class="num">${r.hits}</td><td class="num">${r.kills}</td><td class="num">${r.heals}</td>
+      <td class="num">${r.strikes}</td><td class="num">${medic}</td><td class="num"><b>${r.score}</b></td></tr>`;
+  }).join("");
+
+  $("feed").innerHTML = s.feed.map(e =>
+    `<div class="k-${e.kind}">[${e.t}] <b>${esc(e.src)}</b>: ${esc(e.msg)}</div>`).join("");
+
+  $("hist").innerHTML = s.history.length ? s.history.map(h =>
+    `<tr><td>${esc(h.ended_at)}</td><td>${esc(h.result)}</td><td class="num">${mmss(h.duration_s * 1000)}</td>
+     <td class="num">${h.hits_taken}</td><td class="num">${h.deaths}</td><td>${esc(h.mvp)}</td></tr>`).join("")
+    : `<tr><td colspan="6" class="mute">No matches yet.</td></tr>`;
+
+  if (!settingsBuilt || !editing) buildSettings(s.settings, s.limits);
+}
+
+async function poll() {
+  try {
+    const r = await fetch("/api/state", { cache: "no-store" });
+    render(await r.json());
+    $("conn").textContent = "live"; $("conn").style.color = "var(--green)";
+  } catch (e) {
+    $("conn").textContent = "server unreachable"; $("conn").style.color = "var(--red)";
+  }
+}
+poll();
+setInterval(poll, 500);
+</script>
+</body>
+</html>

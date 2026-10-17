@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1000" viewBox="0 0 1200 1000" font-family="Helvetica, Arial, sans-serif">
+  <rect width="1200" height="1000" fill="#ffffff"/>
+  <text x="600" y="40" text-anchor="middle" font-size="28" font-weight="bold">Trigger (push switch) wiring - beginner guide</text>
+  <text x="600" y="66" text-anchor="middle" font-size="14" fill="#555">A push switch is just a gap in a wire. Pressing it closes the gap. It has NO + or - side.</text>
+
+  <!-- ================= PANEL 1 ================= -->
+  <rect x="30" y="90" width="560" height="400" rx="12" fill="#f8fafc" stroke="#000" stroke-width="2"/>
+  <text x="310" y="120" text-anchor="middle" font-size="18" font-weight="bold">1. The usual 4-leg switch (top view)</text>
+
+  <!-- body -->
+  <rect x="190" y="160" width="160" height="150" rx="10" fill="#334155" stroke="#000" stroke-width="3"/>
+  <circle cx="270" cy="235" r="40" fill="#94a3b8" stroke="#000" stroke-width="3"/>
+  <text x="270" y="240" text-anchor="middle" font-size="12" fill="#000">button</text>
+  <!-- legs -->
+  <g fill="#cbd5e1" stroke="#000" stroke-width="2">
+    <rect x="160" y="178" width="30" height="14"/>
+    <rect x="160" y="278" width="30" height="14"/>
+    <rect x="350" y="178" width="30" height="14"/>
+    <rect x="350" y="278" width="30" height="14"/>
+  </g>
+  <!-- internal links -->
+  <line x1="205" y1="185" x2="205" y2="285" stroke="#2563eb" stroke-width="5"/>
+  <line x1="335" y1="185" x2="335" y2="285" stroke="#ea580c" stroke-width="5"/>
+  <text x="205" y="330" text-anchor="middle" font-size="12" fill="#2563eb">always joined</text>
+  <text x="335" y="330" text-anchor="middle" font-size="12" fill="#ea580c">always joined</text>
+  <!-- leg labels -->
+  <text x="150" y="190" text-anchor="end" font-size="14" font-weight="bold">A1</text>
+  <text x="150" y="290" text-anchor="end" font-size="14" font-weight="bold">A2</text>
+  <text x="390" y="190" font-size="14" font-weight="bold">B1</text>
+  <text x="390" y="290" font-size="14" font-weight="bold">B2</text>
+  <text x="270" y="355" text-anchor="middle" font-size="14">PRESS = left pair (A) connects to right pair (B)</text>
+  <text x="270" y="375" text-anchor="middle" font-size="14">RELEASE = A and B are NOT connected</text>
+
+  <!-- good / bad -->
+  <rect x="50" y="395" width="250" height="80" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="175" y="418" text-anchor="middle" font-size="15" font-weight="bold" fill="#166534">DO: use DIAGONAL legs</text>
+  <text x="175" y="440" text-anchor="middle" font-size="13">A1 + B2   (or A2 + B1)</text>
+  <text x="175" y="460" text-anchor="middle" font-size="13">always one from each side. Works.</text>
+  <rect x="320" y="395" width="250" height="80" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="445" y="418" text-anchor="middle" font-size="15" font-weight="bold" fill="#991b1b">DON'T: two legs on same side</text>
+  <text x="445" y="440" text-anchor="middle" font-size="13">A1 + A2 are already joined,</text>
+  <text x="445" y="460" text-anchor="middle" font-size="13">so the button does nothing.</text>
+
+  <!-- ================= PANEL 2 ================= -->
+  <rect x="610" y="90" width="560" height="400" rx="12" fill="#f8fafc" stroke="#000" stroke-width="2"/>
+  <text x="890" y="120" text-anchor="middle" font-size="18" font-weight="bold">2. How the ESP32 reads it</text>
+
+  <rect x="640" y="170" width="130" height="50" rx="6" fill="#1e293b" stroke="#000" stroke-width="2"/>
+  <text x="705" y="200" text-anchor="middle" font-size="14" fill="#fff">D13</text>
+  <line x1="770" y1="195" x2="860" y2="195" stroke="#2563eb" stroke-width="3"/>
+  <circle cx="860" cy="195" r="6" fill="#000"/>
+  <line x1="860" y1="195" x2="925" y2="170" stroke="#000" stroke-width="4"/>
+  <circle cx="940" cy="195" r="6" fill="#000"/>
+  <line x1="940" y1="195" x2="1010" y2="195" stroke="#000" stroke-width="3"/>
+  <line x1="1010" y1="195" x2="1010" y2="225" stroke="#000" stroke-width="3"/>
+  <line x1="990" y1="225" x2="1030" y2="225" stroke="#000" stroke-width="3"/>
+  <line x1="997" y1="233" x2="1023" y2="233" stroke="#000" stroke-width="3"/>
+  <line x1="1004" y1="241" x2="1016" y2="241" stroke="#000" stroke-width="3"/>
+  <text x="900" y="150" text-anchor="middle" font-size="13">push switch</text>
+  <text x="1010" y="262" text-anchor="middle" font-size="13">GND</text>
+
+  <text x="640" y="300" font-size="14" font-weight="bold">Not pressed:</text>
+  <text x="640" y="322" font-size="14">pin is held HIGH by a tiny resistor INSIDE the ESP32.</text>
+  <text x="640" y="355" font-size="14" font-weight="bold">Pressed:</text>
+  <text x="640" y="377" font-size="14">pin is connected to GND, so it reads LOW = trigger pulled.</text>
+  <rect x="640" y="400" width="500" height="70" rx="8" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/>
+  <text x="890" y="428" text-anchor="middle" font-size="15" font-weight="bold">No resistor needed.</text>
+  <text x="890" y="452" text-anchor="middle" font-size="13">The code turns on the internal pull-up (INPUT_PULLUP).</text>
+
+  <!-- ================= PANEL 3 ================= -->
+  <rect x="30" y="510" width="1140" height="470" rx="12" fill="#f8fafc" stroke="#000" stroke-width="2"/>
+  <text x="600" y="540" text-anchor="middle" font-size="18" font-weight="bold">3. Your gun: two switches, four wires</text>
+
+  <!-- ESP32 pin block -->
+  <rect x="60" y="570" width="200" height="330" rx="10" fill="#1e293b" stroke="#000" stroke-width="3"/>
+  <text x="160" y="600" text-anchor="middle" font-size="15" fill="#fff" font-weight="bold">ESP32</text>
+  <g fill="#facc15">
+    <circle cx="260" cy="650" r="6"/><circle cx="260" cy="740" r="6"/><circle cx="260" cy="840" r="6"/>
+  </g>
+  <g font-size="14" fill="#fff" text-anchor="end">
+    <text x="245" y="655">D13</text>
+    <text x="245" y="745">D32</text>
+    <text x="245" y="845">GND</text>
+  </g>
+
+  <!-- RED switch -->
+  <text x="540" y="618" text-anchor="middle" font-size="16" font-weight="bold" fill="#b91c1c">RED button = ENEMY shot</text>
+  <line x1="260" y1="650" x2="480" y2="650" stroke="#2563eb" stroke-width="3"/>
+  <circle cx="480" cy="650" r="7" fill="#b91c1c"/>
+  <line x1="480" y1="650" x2="565" y2="618" stroke="#b91c1c" stroke-width="5" opacity="0"/>
+  <line x1="480" y1="650" x2="555" y2="625" stroke="#b91c1c" stroke-width="5"/>
+  <circle cx="600" cy="650" r="7" fill="#b91c1c"/>
+  <line x1="600" y1="650" x2="720" y2="650" stroke="#000" stroke-width="3"/>
+  <text x="540" y="690" text-anchor="middle" font-size="12">leg A1 -> D13 (GPIO13),  leg B2 -> GND</text>
+
+  <!-- GREEN switch -->
+  <text x="540" y="708" text-anchor="middle" font-size="16" font-weight="bold" fill="#15803d">GREEN button = FRIEND shot</text>
+  <line x1="260" y1="740" x2="480" y2="740" stroke="#2563eb" stroke-width="3"/>
+  <circle cx="480" cy="740" r="7" fill="#15803d"/>
+  <line x1="480" y1="740" x2="555" y2="715" stroke="#15803d" stroke-width="5" opacity="0"/>
+  <circle cx="600" cy="740" r="7" fill="#15803d"/>
+  <line x1="480" y1="740" x2="555" y2="725" stroke="#15803d" stroke-width="5"/>
+  <line x1="600" y1="740" x2="720" y2="740" stroke="#000" stroke-width="3"/>
+  <text x="540" y="780" text-anchor="middle" font-size="12">leg A1 -> D32 (GPIO32),  leg B2 -> GND</text>
+
+  <!-- shared GND bus -->
+  <line x1="720" y1="650" x2="720" y2="840" stroke="#000" stroke-width="3"/>
+  <line x1="720" y1="840" x2="260" y2="840" stroke="#000" stroke-width="3"/>
+  <circle cx="720" cy="740" r="5" fill="#000"/>
+  <text x="490" y="830" text-anchor="middle" font-size="13">shared GND wire (both buttons can use the same one)</text>
+
+  <!-- steps -->
+  <rect x="780" y="570" width="370" height="330" rx="10" fill="#ffffff" stroke="#000" stroke-width="2"/>
+  <text x="965" y="598" text-anchor="middle" font-size="16" font-weight="bold">Steps</text>
+  <g font-size="13">
+    <text x="795" y="628">1. Take the RED button. Attach a wire to one leg</text>
+    <text x="795" y="646">    and a second wire to the DIAGONAL leg.</text>
+    <text x="795" y="676">2. Wire 1 goes to D13. Wire 2 goes to GND.</text>
+    <text x="795" y="706">3. Repeat with the GREEN button:</text>
+    <text x="795" y="724">    one wire to D32, one wire to GND.</text>
+    <text x="795" y="754">4. Wire direction doesn't matter; a switch has</text>
+    <text x="795" y="772">    no + or -. Never connect it to 3V3 or VIN.</text>
+    <text x="795" y="802">5. Check: in a LIVE match, pressing a button</text>
+    <text x="795" y="820">    prints [GUN] Fired in the Serial Monitor.</text>
+    <text x="795" y="850" fill="#b91c1c">Unsure which legs are paired? Set a multimeter</text>
+    <text x="795" y="868" fill="#b91c1c">to beep mode: press the button and check that</text>
+    <text x="795" y="886" fill="#b91c1c">your two legs beep only while pressed.</text>
+  </g>
+
+  <text x="60" y="935" font-size="13" font-weight="bold">Using a 2-leg switch (arcade or lever type)?</text>
+  <text x="60" y="955" font-size="13">Same thing: one leg to the GPIO pin, the other leg to GND. Either way round works.</text>
+</svg>

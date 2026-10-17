@@ -1,0 +1,1517 @@
+[
+  {
+    "ended_at": "2026-10-14 12:45:24",
+    "result": "YOU SURVIVED!",
+    "duration_s": 300,
+    "hits_taken": 1,
+    "deaths": 0,
+    "heals": 1,
+    "mvp": "Enemy 1",
+    "scoreboard": [
+      {
+        "name": "Enemy 1",
+        "team": "ENEMY",
+        "hits": 1,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 35,
+        "traitor": false
+      },
+      {
+        "name": "Friend 2",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 1,
+        "strikes": 0,
+        "score": 5,
+        "traitor": false
+      },
+      {
+        "name": "Friend 1",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 3",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 4",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 2",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 3",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 4",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 5",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      }
+    ]
+  },
+  {
+    "ended_at": "2026-10-13 16:33:49",
+    "result": "YOU SURVIVED!",
+    "duration_s": 300,
+    "hits_taken": 7,
+    "deaths": 1,
+    "heals": 1,
+    "mvp": "Enemy 1",
+    "scoreboard": [
+      {
+        "name": "Enemy 1",
+        "team": "ENEMY",
+        "hits": 3,
+        "kills": 1,
+        "heals": 0,
+        "strikes": 0,
+        "score": 80,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 2",
+        "team": "ENEMY",
+        "hits": 2,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 45,
+        "traitor": false
+      },
+      {
+        "name": "Friend 2",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 3",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 4",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 3",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 4",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 5",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 1",
+        "team": "FRIEND",
+        "hits": 2,
+        "kills": 0,
+        "heals": 1,
+        "strikes": 3,
+        "score": -5,
+        "traitor": true
+      }
+    ]
+  },
+  {
+    "ended_at": "2026-10-13 13:52:51",
+    "result": "YOU SURVIVED!",
+    "duration_s": 300,
+    "hits_taken": 2,
+    "deaths": 0,
+    "heals": 2,
+    "mvp": "Enemy 2",
+    "scoreboard": [
+      {
+        "name": "Enemy 2",
+        "team": "ENEMY",
+        "hits": 1,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 35,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 4",
+        "team": "ENEMY",
+        "hits": 1,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 10,
+        "traitor": false
+      },
+      {
+        "name": "Friend 2",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 1,
+        "strikes": 0,
+        "score": 5,
+        "traitor": false
+      },
+      {
+        "name": "Friend 4",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 1,
+        "strikes": 0,
+        "score": 5,
+        "traitor": false
+      },
+      {
+        "name": "Friend 1",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 3",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 1",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 3",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 5",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      }
+    ]
+  },
+  {
+    "ended_at": "2026-10-13 13:41:20",
+    "result": "YOU SURVIVED!",
+    "duration_s": 300,
+    "hits_taken": 3,
+    "deaths": 0,
+    "heals": 2,
+    "mvp": "Enemy 1",
+    "scoreboard": [
+      {
+        "name": "Enemy 1",
+        "team": "ENEMY",
+        "hits": 2,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 45,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 5",
+        "team": "ENEMY",
+        "hits": 1,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 10,
+        "traitor": false
+      },
+      {
+        "name": "Friend 3",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 4",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 2",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 3",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 4",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 1",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 1,
+        "strikes": 1,
+        "score": -5,
+        "traitor": false
+      },
+      {
+        "name": "Friend 2",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 1,
+        "strikes": 1,
+        "score": -5,
+        "traitor": false
+      }
+    ]
+  },
+  {
+    "ended_at": "2026-10-13 11:03:24",
+    "result": "YOU SURVIVED!",
+    "duration_s": 300,
+    "hits_taken": 6,
+    "deaths": 0,
+    "heals": 2,
+    "mvp": "Enemy 1",
+    "scoreboard": [
+      {
+        "name": "Enemy 1",
+        "team": "ENEMY",
+        "hits": 6,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 85,
+        "traitor": false
+      },
+      {
+        "name": "Friend 1",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 1,
+        "strikes": 0,
+        "score": 5,
+        "traitor": false
+      },
+      {
+        "name": "Friend 3",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 4",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 2",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 3",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 4",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 5",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 2",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 1,
+        "strikes": 1,
+        "score": -5,
+        "traitor": false
+      }
+    ]
+  },
+  {
+    "ended_at": "2026-10-13 10:43:21",
+    "result": "YOU SURVIVED!",
+    "duration_s": 300,
+    "hits_taken": 0,
+    "deaths": 0,
+    "heals": 0,
+    "mvp": "Nobody",
+    "scoreboard": [
+      {
+        "name": "Friend 1",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 2",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 3",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 4",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 1",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 2",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 3",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 4",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 5",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      }
+    ]
+  },
+  {
+    "ended_at": "2026-10-13 05:15:11",
+    "result": "YOU SURVIVED!",
+    "duration_s": 300,
+    "hits_taken": 0,
+    "deaths": 0,
+    "heals": 0,
+    "mvp": "Nobody",
+    "scoreboard": [
+      {
+        "name": "Friend 1",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 2",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 3",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 4",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 1",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 2",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 3",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 4",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 5",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      }
+    ]
+  },
+  {
+    "ended_at": "2026-10-13 05:09:44",
+    "result": "YOU SURVIVED!",
+    "duration_s": 300,
+    "hits_taken": 0,
+    "deaths": 0,
+    "heals": 0,
+    "mvp": "Nobody",
+    "scoreboard": [
+      {
+        "name": "Friend 1",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 2",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 3",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 4",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 1",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 2",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 3",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 4",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 5",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      }
+    ]
+  },
+  {
+    "ended_at": "2026-10-13 05:03:36",
+    "result": "YOU SURVIVED!",
+    "duration_s": 300,
+    "hits_taken": 0,
+    "deaths": 0,
+    "heals": 0,
+    "mvp": "Nobody",
+    "scoreboard": [
+      {
+        "name": "Friend 1",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 2",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 3",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 4",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 1",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 2",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 3",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 4",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 5",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      }
+    ]
+  },
+  {
+    "ended_at": "2026-10-08 22:15:09",
+    "result": "YOU SURVIVED!",
+    "duration_s": 300,
+    "hits_taken": 3,
+    "deaths": 0,
+    "heals": 3,
+    "mvp": "Enemy 1",
+    "scoreboard": [
+      {
+        "name": "Enemy 1",
+        "team": "ENEMY",
+        "hits": 1,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 35,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 2",
+        "team": "ENEMY",
+        "hits": 1,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 10,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 4",
+        "team": "ENEMY",
+        "hits": 1,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 10,
+        "traitor": false
+      },
+      {
+        "name": "Friend 1",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 1,
+        "strikes": 0,
+        "score": 5,
+        "traitor": false
+      },
+      {
+        "name": "Friend 2",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 1,
+        "strikes": 0,
+        "score": 5,
+        "traitor": false
+      },
+      {
+        "name": "Friend 3",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 1,
+        "strikes": 0,
+        "score": 5,
+        "traitor": false
+      },
+      {
+        "name": "Friend 4",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 3",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 5",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      }
+    ]
+  },
+  {
+    "ended_at": "2026-10-08 12:42:46",
+    "result": "YOU SURVIVED!",
+    "duration_s": 300,
+    "hits_taken": 0,
+    "deaths": 0,
+    "heals": 0,
+    "mvp": "Nobody",
+    "scoreboard": [
+      {
+        "name": "Friend 1",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 2",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 3",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 4",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 1",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 2",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 3",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 4",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 5",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      }
+    ]
+  },
+  {
+    "ended_at": "2026-10-08 11:53:20",
+    "result": "YOU SURVIVED!",
+    "duration_s": 300,
+    "hits_taken": 3,
+    "deaths": 0,
+    "heals": 0,
+    "mvp": "Enemy 1",
+    "scoreboard": [
+      {
+        "name": "Enemy 1",
+        "team": "ENEMY",
+        "hits": 1,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 35,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 2",
+        "team": "ENEMY",
+        "hits": 1,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 10,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 5",
+        "team": "ENEMY",
+        "hits": 1,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 10,
+        "traitor": false
+      },
+      {
+        "name": "Friend 1",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 2",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 3",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 4",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 3",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 4",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      }
+    ]
+  },
+  {
+    "ended_at": "2026-10-08 11:29:10",
+    "result": "YOU SURVIVED!",
+    "duration_s": 300,
+    "hits_taken": 11,
+    "deaths": 2,
+    "heals": 1,
+    "mvp": "Enemy 5",
+    "scoreboard": [
+      {
+        "name": "Enemy 5",
+        "team": "ENEMY",
+        "hits": 3,
+        "kills": 1,
+        "heals": 0,
+        "strikes": 0,
+        "score": 80,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 4",
+        "team": "ENEMY",
+        "hits": 2,
+        "kills": 1,
+        "heals": 0,
+        "strikes": 0,
+        "score": 70,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 1",
+        "team": "ENEMY",
+        "hits": 2,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 45,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 2",
+        "team": "ENEMY",
+        "hits": 4,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 40,
+        "traitor": false
+      },
+      {
+        "name": "Friend 1",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 2",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 3",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 3",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 4",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 1,
+        "strikes": 1,
+        "score": -5,
+        "traitor": false
+      }
+    ]
+  },
+  {
+    "ended_at": "2026-10-06 23:46:53",
+    "result": "YOU SURVIVED!",
+    "duration_s": 300,
+    "hits_taken": 16,
+    "deaths": 2,
+    "heals": 5,
+    "mvp": "Enemy 5",
+    "scoreboard": [
+      {
+        "name": "Enemy 5",
+        "team": "ENEMY",
+        "hits": 8,
+        "kills": 1,
+        "heals": 0,
+        "strikes": 0,
+        "score": 130,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 3",
+        "team": "ENEMY",
+        "hits": 2,
+        "kills": 1,
+        "heals": 0,
+        "strikes": 0,
+        "score": 70,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 1",
+        "team": "ENEMY",
+        "hits": 3,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 55,
+        "traitor": false
+      },
+      {
+        "name": "Friend 2",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 2,
+        "strikes": 0,
+        "score": 10,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 2",
+        "team": "ENEMY",
+        "hits": 1,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 10,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 4",
+        "team": "ENEMY",
+        "hits": 1,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 10,
+        "traitor": false
+      },
+      {
+        "name": "Friend 4",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 1",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 2,
+        "strikes": 2,
+        "score": -10,
+        "traitor": false
+      },
+      {
+        "name": "Friend 3",
+        "team": "FRIEND",
+        "hits": 1,
+        "kills": 0,
+        "heals": 1,
+        "strikes": 3,
+        "score": -15,
+        "traitor": true
+      }
+    ]
+  },
+  {
+    "ended_at": "2026-10-04 01:40:39",
+    "result": "MATCH ENDED",
+    "duration_s": 85,
+    "hits_taken": 12,
+    "deaths": 1,
+    "heals": 2,
+    "mvp": "Enemy 1",
+    "scoreboard": [
+      {
+        "name": "Enemy 1",
+        "team": "ENEMY",
+        "hits": 4,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 65,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 3",
+        "team": "ENEMY",
+        "hits": 1,
+        "kills": 1,
+        "heals": 0,
+        "strikes": 0,
+        "score": 60,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 4",
+        "team": "ENEMY",
+        "hits": 5,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 50,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 5",
+        "team": "ENEMY",
+        "hits": 2,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 20,
+        "traitor": false
+      },
+      {
+        "name": "Friend 3",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 1,
+        "strikes": 0,
+        "score": 5,
+        "traitor": false
+      },
+      {
+        "name": "Friend 2",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 4",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Enemy 2",
+        "team": "ENEMY",
+        "hits": 0,
+        "kills": 0,
+        "heals": 0,
+        "strikes": 0,
+        "score": 0,
+        "traitor": false
+      },
+      {
+        "name": "Friend 1",
+        "team": "FRIEND",
+        "hits": 0,
+        "kills": 0,
+        "heals": 1,
+        "strikes": 3,
+        "score": -25,
+        "traitor": true
+      }
+    ]
+  }
+]

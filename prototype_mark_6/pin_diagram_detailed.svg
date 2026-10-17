@@ -1,0 +1,181 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="1230" viewBox="0 0 1300 1230" font-family="Helvetica, Arial, sans-serif">
+  <rect width="1300" height="1230" fill="#ffffff"/>
+  <text x="650" y="40" text-anchor="middle" font-size="28" font-weight="bold">Mark 6 - In-depth component wiring (ESP32 30-pin)</text>
+  <text x="650" y="64" text-anchor="middle" font-size="14" fill="#555">red = 3V3, orange = 5V (VIN), blue = signal, black = GND</text>
+
+  <!-- ================= A. TSOP SENSORS ================= -->
+  <rect x="30" y="85" width="1240" height="390" rx="12" fill="#f8fafc" stroke="#000" stroke-width="2"/>
+  <text x="650" y="113" text-anchor="middle" font-size="18" font-weight="bold">A. Six TSOP1838 sensors (vest) - all share the same three wires</text>
+
+  <!-- single TSOP close-up -->
+  <text x="150" y="145" text-anchor="middle" font-size="14" font-weight="bold">One sensor, front view</text>
+  <path d="M95 160 h110 v80 q0 35 -55 35 q-55 0 -55 -35 z" fill="#1f2937" stroke="#000" stroke-width="3"/>
+  <ellipse cx="150" cy="195" rx="30" ry="22" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+  <text x="150" y="199" text-anchor="middle" font-size="11" fill="#94a3b8">dome</text>
+  <g stroke="#000" stroke-width="3">
+    <line x1="115" y1="275" x2="115" y2="335"/><line x1="150" y1="275" x2="150" y2="335"/><line x1="185" y1="275" x2="185" y2="335"/>
+  </g>
+  <text x="115" y="355" text-anchor="middle" font-size="14" font-weight="bold" fill="#2563eb">OUT</text>
+  <text x="150" y="355" text-anchor="middle" font-size="14" font-weight="bold">GND</text>
+  <text x="185" y="355" text-anchor="middle" font-size="14" font-weight="bold" fill="#dc2626">VCC</text>
+  <text x="150" y="378" text-anchor="middle" font-size="12">legs left to right</text>
+  <text x="150" y="394" text-anchor="middle" font-size="12">(dome facing you)</text>
+  <rect x="55" y="410" width="190" height="50" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="150" y="430" text-anchor="middle" font-size="12" fill="#991b1b" font-weight="bold">3V3 ONLY. Never 5V.</text>
+  <text x="150" y="448" text-anchor="middle" font-size="12" fill="#991b1b">Check your part's marking first.</text>
+
+  <!-- rails -->
+  <text x="300" y="205" text-anchor="end" font-size="13" fill="#dc2626" font-weight="bold">to ESP32 3V3</text>
+  <text x="300" y="255" text-anchor="end" font-size="13" fill="#2563eb" font-weight="bold">to D15 (GPIO15)</text>
+  <text x="300" y="305" text-anchor="end" font-size="13" font-weight="bold">to GND</text>
+  <line x1="310" y1="200" x2="1215" y2="200" stroke="#dc2626" stroke-width="4"/>
+  <line x1="310" y1="250" x2="1215" y2="250" stroke="#2563eb" stroke-width="4"/>
+  <line x1="310" y1="300" x2="1215" y2="300" stroke="#000" stroke-width="4"/>
+  <text x="1222" y="205" font-size="11">VCC</text>
+  <text x="1222" y="255" font-size="11">OUT</text>
+  <text x="1222" y="305" font-size="11">GND</text>
+
+  <!-- six sensors -->
+  <g id="sensors">
+    <g font-size="12" text-anchor="middle">
+      <!-- sensor i at x = 400 + i*150 : legs at x-20(OUT), x(GND), x+20(VCC) -->
+      <g>
+        <line x1="380" y1="250" x2="380" y2="360" stroke="#2563eb" stroke-width="3"/><circle cx="380" cy="250" r="5" fill="#2563eb"/>
+        <line x1="400" y1="300" x2="400" y2="360" stroke="#000" stroke-width="3"/><circle cx="400" cy="300" r="5" fill="#000"/>
+        <line x1="420" y1="200" x2="420" y2="360" stroke="#dc2626" stroke-width="3"/><circle cx="420" cy="200" r="5" fill="#dc2626"/>
+        <rect x="365" y="360" width="70" height="50" rx="8" fill="#334155" stroke="#000" stroke-width="2"/><text x="400" y="390" fill="#fff">FRONT 1</text>
+      </g>
+      <g>
+        <line x1="530" y1="250" x2="530" y2="360" stroke="#2563eb" stroke-width="3"/><circle cx="530" cy="250" r="5" fill="#2563eb"/>
+        <line x1="550" y1="300" x2="550" y2="360" stroke="#000" stroke-width="3"/><circle cx="550" cy="300" r="5" fill="#000"/>
+        <line x1="570" y1="200" x2="570" y2="360" stroke="#dc2626" stroke-width="3"/><circle cx="570" cy="200" r="5" fill="#dc2626"/>
+        <rect x="515" y="360" width="70" height="50" rx="8" fill="#334155" stroke="#000" stroke-width="2"/><text x="550" y="390" fill="#fff">FRONT 2</text>
+      </g>
+      <g>
+        <line x1="680" y1="250" x2="680" y2="360" stroke="#2563eb" stroke-width="3"/><circle cx="680" cy="250" r="5" fill="#2563eb"/>
+        <line x1="700" y1="300" x2="700" y2="360" stroke="#000" stroke-width="3"/><circle cx="700" cy="300" r="5" fill="#000"/>
+        <line x1="720" y1="200" x2="720" y2="360" stroke="#dc2626" stroke-width="3"/><circle cx="720" cy="200" r="5" fill="#dc2626"/>
+        <rect x="665" y="360" width="70" height="50" rx="8" fill="#334155" stroke="#000" stroke-width="2"/><text x="700" y="390" fill="#fff">FRONT 3</text>
+      </g>
+      <g>
+        <line x1="830" y1="250" x2="830" y2="360" stroke="#2563eb" stroke-width="3"/><circle cx="830" cy="250" r="5" fill="#2563eb"/>
+        <line x1="850" y1="300" x2="850" y2="360" stroke="#000" stroke-width="3"/><circle cx="850" cy="300" r="5" fill="#000"/>
+        <line x1="870" y1="200" x2="870" y2="360" stroke="#dc2626" stroke-width="3"/><circle cx="870" cy="200" r="5" fill="#dc2626"/>
+        <rect x="815" y="360" width="70" height="50" rx="8" fill="#334155" stroke="#000" stroke-width="2"/><text x="850" y="390" fill="#fff">FRONT 4</text>
+      </g>
+      <g>
+        <line x1="980" y1="250" x2="980" y2="360" stroke="#2563eb" stroke-width="3"/><circle cx="980" cy="250" r="5" fill="#2563eb"/>
+        <line x1="1000" y1="300" x2="1000" y2="360" stroke="#000" stroke-width="3"/><circle cx="1000" cy="300" r="5" fill="#000"/>
+        <line x1="1020" y1="200" x2="1020" y2="360" stroke="#dc2626" stroke-width="3"/><circle cx="1020" cy="200" r="5" fill="#dc2626"/>
+        <rect x="965" y="360" width="70" height="50" rx="8" fill="#334155" stroke="#000" stroke-width="2"/><text x="1000" y="390" fill="#fff">BACK 1</text>
+      </g>
+      <g>
+        <line x1="1130" y1="250" x2="1130" y2="360" stroke="#2563eb" stroke-width="3"/><circle cx="1130" cy="250" r="5" fill="#2563eb"/>
+        <line x1="1150" y1="300" x2="1150" y2="360" stroke="#000" stroke-width="3"/><circle cx="1150" cy="300" r="5" fill="#000"/>
+        <line x1="1170" y1="200" x2="1170" y2="360" stroke="#dc2626" stroke-width="3"/><circle cx="1170" cy="200" r="5" fill="#dc2626"/>
+        <rect x="1115" y="360" width="70" height="50" rx="8" fill="#334155" stroke="#000" stroke-width="2"/><text x="1150" y="390" fill="#fff">BACK 2</text>
+      </g>
+    </g>
+  </g>
+  <text x="780" y="440" text-anchor="middle" font-size="13">Dots = wire joins the rail. Lines crossing without a dot do not touch.</text>
+  <text x="780" y="460" text-anchor="middle" font-size="13" fill="#b91c1c" font-weight="bold">Solder a 0.1uF capacitor across VCC and GND right at each sensor's legs (6 capacitors).</text>
+
+  <!-- ================= B. IR LED ================= -->
+  <rect x="30" y="495" width="400" height="270" rx="12" fill="#f8fafc" stroke="#000" stroke-width="2"/>
+  <text x="230" y="523" text-anchor="middle" font-size="18" font-weight="bold">B. IR LED (gun)</text>
+  <rect x="50" y="545" width="90" height="36" rx="5" fill="#1e293b"/>
+  <text x="95" y="568" text-anchor="middle" font-size="13" fill="#fff">D4 (GPIO4)</text>
+  <line x1="140" y1="563" x2="170" y2="563" stroke="#2563eb" stroke-width="3"/>
+  <polyline points="170,563 180,548 195,578 210,548 225,578 240,548 255,578 265,563 285,563" fill="none" stroke="#000" stroke-width="3"/>
+  <text x="225" y="535" text-anchor="middle" font-size="12">100 ohm</text>
+  <polygon points="285,543 285,583 325,563" fill="#fecaca" stroke="#000" stroke-width="3"/>
+  <line x1="325" y1="543" x2="325" y2="583" stroke="#000" stroke-width="4"/>
+  <line x1="325" y1="563" x2="375" y2="563" stroke="#000" stroke-width="3"/>
+  <line x1="375" y1="563" x2="375" y2="590" stroke="#000" stroke-width="3"/>
+  <line x1="360" y1="590" x2="390" y2="590" stroke="#000" stroke-width="3"/>
+  <line x1="367" y1="598" x2="383" y2="598" stroke="#000" stroke-width="3"/>
+  <text x="375" y="620" text-anchor="middle" font-size="12">GND</text>
+  <text x="285" y="615" text-anchor="middle" font-size="12">anode (+)</text>
+  <text x="335" y="535" font-size="12">cathode (-)</text>
+  <!-- physical LED -->
+  <path d="M70 660 v-40 a25 25 0 0 1 50 0 v40 z" fill="#fca5a5" stroke="#000" stroke-width="2"/>
+  <line x1="85" y1="660" x2="85" y2="730" stroke="#000" stroke-width="3"/>
+  <line x1="105" y1="660" x2="105" y2="715" stroke="#000" stroke-width="3"/>
+  <text x="110" y="746" text-anchor="middle" font-size="11">long leg = (+)</text>
+  <text x="110" y="760" text-anchor="middle" font-size="11">short leg / flat edge = (-)</text>
+  <text x="140" y="665" font-size="12">Long leg (+) goes to the resistor.</text>
+  <text x="140" y="683" font-size="12">Short leg (-) goes to GND.</text>
+  <text x="140" y="705" font-size="12">Current ~ (3.3V-1.3V)/100 = 20 mA.</text>
+  <text x="140" y="723" font-size="12" fill="#b91c1c">Wrong way round = no beam.</text>
+
+  <!-- ================= C. BUZZER ================= -->
+  <rect x="450" y="495" width="390" height="270" rx="12" fill="#f8fafc" stroke="#000" stroke-width="2"/>
+  <text x="645" y="523" text-anchor="middle" font-size="18" font-weight="bold">C. Passive buzzer</text>
+  <circle cx="540" cy="620" r="45" fill="#1f2937" stroke="#000" stroke-width="3"/>
+  <circle cx="540" cy="620" r="9" fill="#475569"/>
+  <text x="520" y="577" font-size="16" font-weight="bold" fill="#fff">+</text>
+  <line x1="522" y1="662" x2="522" y2="720" stroke="#2563eb" stroke-width="3"/>
+  <line x1="558" y1="662" x2="558" y2="720" stroke="#000" stroke-width="3"/>
+  <text x="522" y="738" text-anchor="middle" font-size="12" fill="#2563eb">(+) D33 (GPIO33)</text>
+  <text x="560" y="754" text-anchor="middle" font-size="12">(-) GND</text>
+  <text x="620" y="570" font-size="13" font-weight="bold">Bare 2-pin buzzer</text>
+  <text x="620" y="590" font-size="12">(+) leg (marked + or the longer leg)</text>
+  <text x="620" y="607" font-size="12">goes to D33 (GPIO33); (-) leg goes to GND.</text>
+  <text x="620" y="640" font-size="13" font-weight="bold">3-pin buzzer module</text>
+  <text x="620" y="660" font-size="12">S (signal) -> D33 (GPIO33)</text>
+  <text x="620" y="677" font-size="12">VCC -> 3V3,  GND -> GND</text>
+  <text x="620" y="708" font-size="12" fill="#b91c1c">PASSIVE makes notes. ACTIVE only</text>
+  <text x="620" y="724" font-size="12" fill="#b91c1c">beeps: set BUZZER_PASSIVE=false.</text>
+
+  <!-- ================= D. LCD ================= -->
+  <rect x="860" y="495" width="410" height="270" rx="12" fill="#f8fafc" stroke="#000" stroke-width="2"/>
+  <text x="1065" y="523" text-anchor="middle" font-size="18" font-weight="bold">D. 16x2 LCD with I2C backpack</text>
+  <rect x="880" y="545" width="200" height="110" rx="6" fill="#bfdbfe" stroke="#000" stroke-width="2"/>
+  <rect x="890" y="555" width="180" height="40" fill="#93c5fd"/>
+  <rect x="890" y="600" width="180" height="40" fill="#93c5fd"/>
+  <rect x="880" y="670" width="200" height="40" rx="4" fill="#0f766e" stroke="#000" stroke-width="2"/>
+  <text x="980" y="695" text-anchor="middle" font-size="12" fill="#fff">I2C backpack (4 pins)</text>
+  <g font-size="12" font-weight="bold" text-anchor="middle">
+    <text x="900" y="735">GND</text><text x="940" y="735">VCC</text><text x="980" y="735">SDA</text><text x="1020" y="735">SCL</text>
+  </g>
+  <g stroke="#000" stroke-width="3">
+    <line x1="900" y1="710" x2="900" y2="722"/><line x1="940" y1="710" x2="940" y2="722"/><line x1="980" y1="710" x2="980" y2="722"/><line x1="1020" y1="710" x2="1020" y2="722"/>
+  </g>
+  <text x="1095" y="560" font-size="12">GND -> GND</text>
+  <text x="1095" y="580" font-size="12" fill="#ea580c" font-weight="bold">VCC -> VIN (5V)</text>
+  <text x="1095" y="600" font-size="12" fill="#2563eb">SDA -> D21 (GPIO21)</text>
+  <text x="1095" y="620" font-size="12" fill="#2563eb">SCL -> D22 (GPIO22)</text>
+  <text x="1095" y="650" font-size="12">Address 0x27.</text>
+  <text x="1095" y="668" font-size="12">Blank screen?</text>
+  <text x="1095" y="686" font-size="12">Turn the blue pot</text>
+  <text x="1095" y="704" font-size="12">on the backpack,</text>
+  <text x="1095" y="722" font-size="12">or try 0x3F.</text>
+
+  <!-- ================= E. PIN MAP ================= -->
+  <rect x="30" y="785" width="1240" height="420" rx="12" fill="#f8fafc" stroke="#000" stroke-width="2"/>
+  <text x="650" y="813" text-anchor="middle" font-size="18" font-weight="bold">E. Complete pin map</text>
+  <g font-size="13">
+    <rect x="50" y="830" width="1200" height="30" fill="#e2e8f0"/>
+    <text x="60" y="850" font-weight="bold">Board Label (Pin)</text>
+    <text x="210" y="850" font-weight="bold">Connects to</text>
+    <text x="640" y="850" font-weight="bold">Type</text>
+    <text x="760" y="850" font-weight="bold">Notes</text>
+
+    <text x="60" y="885">3V3</text><text x="210" y="885">VCC of all 6 TSOP sensors</text><text x="640" y="885">power</text><text x="760" y="885">Sensors must NOT get 5V</text>
+    <text x="60" y="917">VIN (5V)</text><text x="210" y="917">LCD backpack VCC</text><text x="640" y="917">power</text><text x="760" y="917">Comes from USB (later from the boost module)</text>
+    <text x="60" y="949">GND (x2)</text><text x="210" y="949">TSOP GND, IR LED (-), 2 buttons, buzzer (-), LCD GND</text><text x="640" y="949">ground</text><text x="760" y="949">Join all grounds together</text>
+    <text x="60" y="981">D15 (GPIO15)</text><text x="210" y="981">OUT of all 6 TSOP sensors (joined)</text><text x="640" y="981">input</text><text x="760" y="981">Boot pin, safe: the sensors idle HIGH</text>
+    <text x="60" y="1013">D4 (GPIO4)</text><text x="210" y="1013">IR LED (+) through a 100 ohm resistor</text><text x="640" y="1013">output</text><text x="760" y="1013">Sends the shot code</text>
+    <text x="60" y="1045">D13 (GPIO13)</text><text x="210" y="1045">RED button (other side to GND)</text><text x="640" y="1045">input</text><text x="760" y="1045">Enemy shot, internal pull-up</text>
+    <text x="60" y="1077">D32 (GPIO32)</text><text x="210" y="1077">GREEN button (other side to GND)</text><text x="640" y="1077">input</text><text x="760" y="1077">Friend / medic shot, internal pull-up</text>
+    <text x="60" y="1109">D33 (GPIO33)</text><text x="210" y="1109">Buzzer (+)</text><text x="640" y="1109">output</text><text x="760" y="1109">Tone output</text>
+    <text x="60" y="1141">D21 (GPIO21)</text><text x="210" y="1141">LCD SDA</text><text x="640" y="1141">I2C</text><text x="760" y="1141">Default I2C data pin</text>
+    <text x="60" y="1173">D22 (GPIO22)</text><text x="210" y="1173">LCD SCL</text><text x="640" y="1173">I2C</text><text x="760" y="1173">Default I2C clock pin</text>
+  </g>
+  <g stroke="#cbd5e1" stroke-width="1">
+    <line x1="50" y1="898" x2="1250" y2="898"/><line x1="50" y1="930" x2="1250" y2="930"/><line x1="50" y1="962" x2="1250" y2="962"/>
+    <line x1="50" y1="994" x2="1250" y2="994"/><line x1="50" y1="1026" x2="1250" y2="1026"/><line x1="50" y1="1058" x2="1250" y2="1058"/>
+    <line x1="50" y1="1090" x2="1250" y2="1090"/><line x1="50" y1="1122" x2="1250" y2="1122"/><line x1="50" y1="1154" x2="1250" y2="1154"/>
+  </g>
+  <text x="60" y="1198" font-size="12" fill="#b91c1c" font-weight="bold">Never use GPIO 0, 12 or 6-11 for these parts, and GPIO 34-39 can only read (no pull-ups, no outputs).</text>
+</svg>

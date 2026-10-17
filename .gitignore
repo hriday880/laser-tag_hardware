@@ -1,0 +1,22 @@
+# OS and editor files
+.DS_Store
+*.swp
+*.bak
+Thumbs.db
+
+# Personal / scratch files
+Assignment_LA.pdf
+*.numbers
+test.txt
+test.html
+test.pdf
+test_pdf.py
+test_pinout.py
+
+# Sub-repositories
+Laser Tag/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
