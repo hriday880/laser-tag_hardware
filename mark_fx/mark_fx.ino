@@ -484,7 +484,7 @@ bool sendHeartbeat() {
 
 void sendHit(uint64_t code) {
   char hexBuf[20];
-  sprintf(hexBuf, "0x%llX", code);
+  snprintf(hexBuf, sizeof(hexBuf), "0x%llX", code);
   String body = "{\"node_id\":\"" + String(NODE_ID) + "\",\"button_code\":\"" + String(hexBuf) + "\"}";
   Serial.printf("[IR] Received hit %s, sending to server...\n", hexBuf);
 
