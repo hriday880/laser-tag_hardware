@@ -362,7 +362,7 @@ void handleTrigger() {
       if (debouncedState == LOW) {
         // Confirmed button press (falling edge)
         unsigned long now = millis();
-        unsigned long cooldown = (net == NET_OK && ph == "LIVE") ? FIRE_COOLDOWN_MATCH_MS : FIRE_COOLDOWN_TEST_MS;
+        unsigned long cooldown = (isStandalone || (net == NET_OK && ph == "LIVE")) ? FIRE_COOLDOWN_MATCH_MS : FIRE_COOLDOWN_TEST_MS;
 
         if (now - lastShotAt >= cooldown) {
           // Match live checks
@@ -515,6 +515,7 @@ void handleIR() {
 
   // Match live mode
   if (net == NET_OK && ph == "LIVE" && pst == "ALIVE") {
+    if (!isKnownPlayer((uint32_t)code)) return;
     if (remaining(prMs) > 0 || remaining(cdMs) > 0) {
       if (remaining(prMs) > 0) PLAY(M_SHIELD, PRIO_EVENT);
       return;
@@ -613,7 +614,7 @@ void updateNetwork() {
 
   if (WiFi.status() != WL_CONNECTED) {
     udpListening = false;
-    if (net == NET_OK) {
+    if (net == NET_OK || net == NET_DISCOVER) {
       net = NET_LOST;
       isStandalone = true;
     }
