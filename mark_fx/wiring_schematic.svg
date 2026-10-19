@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0b1120; }
+      .grid { stroke: #1e293b; stroke-width: 0.5; }
+      .box { fill: #1e293b; stroke: #475569; stroke-width: 2; rx: 8; }
+      .mcu { fill: #0f172a; stroke: #38bdf8; stroke-width: 2.5; rx: 10; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-size: 22px; font-weight: bold; fill: #f8fafc; }
+      .subtitle { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; fill: #94a3b8; }
+      .comp-title { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; font-weight: bold; fill: #38bdf8; }
+      .pin { font-family: monospace; font-size: 11px; fill: #f1f5f9; font-weight: bold; }
+      .res { fill: #334155; stroke: #f59e0b; stroke-width: 2; rx: 4; }
+      .wire-vcc { stroke: #ef4444; stroke-width: 2; fill: none; }
+      .wire-gnd { stroke: #64748b; stroke-width: 2; fill: none; }
+      .wire-sig { stroke: #38bdf8; stroke-width: 2; fill: none; }
+      .wire-ir  { stroke: #ec4899; stroke-width: 2; fill: none; }
+      .wire-hud { stroke: #22c55e; stroke-width: 2; fill: none; }
+      .node { fill: #f8fafc; r: 3.5; }
+    </style>
+  </defs>
+
+  <rect width="1000" height="700" class="bg"/>
+
+  <!-- Title Block -->
+  <text x="40" y="40" class="title">MARK FX — COMPLETE SYSTEM WIRING SCHEMATIC</text>
+  <text x="40" y="62" class="subtitle">ESP32 DOIT DevKit V1 (30-Pin) • Gun Electronics &amp; 5-Sensor TSOP1838 Vest Array</text>
+
+  <!-- MCU Box Center -->
+  <rect x="360" y="110" width="280" height="520" class="mcu"/>
+  <text x="500" y="145" font-family="system-ui, sans-serif" font-size="16px" font-weight="bold" fill="#38bdf8" text-anchor="middle">ESP32 DevKit V1</text>
+  <text x="500" y="165" font-family="monospace" font-size="11px" fill="#94a3b8" text-anchor="middle">DOIT 30-PIN CH340</text>
+
+  <!-- USB 5V IN Top -->
+  <rect x="440" y="90" width="120" height="20" fill="#475569" rx="3"/>
+  <text x="500" y="104" font-family="monospace" font-size="10px" fill="#f8fafc" text-anchor="middle">USB 5V POWER</text>
+
+  <!-- ==================== LEFT CIRCUIT: IR LED & TRIGGER ==================== -->
+  <!-- D4 Pin -->
+  <text x="375" y="210" class="pin">GPIO 4 (D4)</text>
+  <!-- 110Ω Resistor Network -->
+  <rect x="230" y="195" width="80" height="28" class="res"/>
+  <text x="270" y="213" font-family="monospace" font-size="11px" fill="#f59e0b" text-anchor="middle">110Ω (3x330)</text>
+  <!-- IR LED -->
+  <rect x="80" y="185" width="110" height="48" class="box" stroke="#ec4899"/>
+  <text x="135" y="206" class="comp-title" fill="#f472b6" text-anchor="middle">940nm IR LED</text>
+  <text x="135" y="222" font-family="sans-serif" font-size="10px" fill="#cbd5e1" text-anchor="middle">Direct Drive ~17mA</text>
+
+  <path d="M 360 209 L 310 209" class="wire-ir"/>
+  <path d="M 230 209 L 190 209" class="wire-ir"/>
+  <path d="M 80 209 L 50 209 L 50 640 L 360 640" class="wire-gnd"/>
+
+  <!-- D13 Pin: Trigger -->
+  <text x="375" y="280" class="pin">GPIO 13 (D13)</text>
+  <!-- Trigger Switch Box -->
+  <rect x="80" y="260" width="180" height="48" class="box" stroke="#38bdf8"/>
+  <text x="170" y="280" class="comp-title" text-anchor="middle">TRIGGER SWITCH</text>
+  <text x="170" y="296" font-family="sans-serif" font-size="10px" fill="#cbd5e1" text-anchor="middle">INPUT_PULLUP to GND</text>
+
+  <path d="M 360 276 L 260 276" class="wire-sig"/>
+  <path d="M 80 285 L 50 285" class="wire-gnd"/>
+
+  <!-- ==================== LEFT CIRCUIT: 5-SENSOR VEST ARRAY ==================== -->
+  <text x="375" y="380" class="pin">GPIO 15 (D15)</text>
+  <text x="375" y="420" class="pin" fill="#ef4444">3V3 POWER</text>
+  <text x="375" y="460" class="pin" fill="#94a3b8">GND</text>
+
+  <!-- Vest Interconnect Cable -->
+  <rect x="70" y="350" width="230" height="150" class="box" stroke="#eab308"/>
+  <text x="185" y="375" class="comp-title" fill="#eab308" text-anchor="middle">5x TSOP1838 VEST ARRAY</text>
+  <text x="185" y="395" font-family="sans-serif" font-size="11px" fill="#f8fafc" text-anchor="middle">Parallel Wired-OR Bus</text>
+  <text x="185" y="415" font-family="monospace" font-size="10px" fill="#eab308" text-anchor="middle">Pin 1 (OUT) ──> D15 (Yellow)</text>
+  <text x="185" y="435" font-family="monospace" font-size="10px" fill="#ef4444" text-anchor="middle">Pin 3 (VCC) ──> 3V3 (Red)</text>
+  <text x="185" y="455" font-family="monospace" font-size="10px" fill="#94a3b8" text-anchor="middle">Pin 2 (GND) ──> GND (Black)</text>
+  <text x="185" y="480" font-family="sans-serif" font-size="10px" fill="#38bdf8" text-anchor="middle">3 Front (Chest/Shoulders), 2 Back</text>
+
+  <path d="M 360 376 L 300 376" class="wire-sig"/>
+  <path d="M 360 416 L 300 416" class="wire-vcc"/>
+  <path d="M 360 456 L 300 456" class="wire-gnd"/>
+
+  <!-- ==================== RIGHT CIRCUIT: BUZZER ==================== -->
+  <text x="545" y="210" class="pin" text-anchor="end">GPIO 33 (D33)</text>
+  <rect x="730" y="185" width="200" height="50" class="box" stroke="#a855f7"/>
+  <text x="830" y="206" class="comp-title" fill="#c084fc" text-anchor="middle">PASSIVE BUZZER</text>
+  <text x="830" y="222" font-family="sans-serif" font-size="10px" fill="#cbd5e1" text-anchor="middle">5V Piezo Direct Drive</text>
+
+  <path d="M 640 206 L 730 206" class="wire-sig"/>
+  <path d="M 930 206 L 960 206 L 960 640 L 640 640" class="wire-gnd"/>
+
+  <!-- ==================== RIGHT CIRCUIT: 5-LED UNICOLOR HUD ==================== -->
+  <!-- D23 -->
+  <text x="545" y="270" class="pin" text-anchor="end">GPIO 23 (D23)</text>
+  <rect x="680" y="258" width="60" height="20" class="res"/>
+  <text x="710" y="272" font-family="monospace" font-size="10px" fill="#f59e0b" text-anchor="middle">330Ω</text>
+  <circle cx="800" cy="268" r="8" fill="#ef4444"/>
+  <text x="820" y="272" font-family="sans-serif" font-size="11px" fill="#cbd5e1">LED 5 (Full / 5 HP)</text>
+  <path d="M 640 268 L 680 268" class="wire-hud"/>
+  <path d="M 740 268 L 792 268" class="wire-hud"/>
+
+  <!-- D22 -->
+  <text x="545" y="320" class="pin" text-anchor="end">GPIO 22 (D22)</text>
+  <rect x="680" y="308" width="60" height="20" class="res"/>
+  <text x="710" y="322" font-family="monospace" font-size="10px" fill="#f59e0b" text-anchor="middle">330Ω</text>
+  <circle cx="800" cy="318" r="8" fill="#ef4444"/>
+  <text x="820" y="322" font-family="sans-serif" font-size="11px" fill="#cbd5e1">LED 4 (4 HP)</text>
+  <path d="M 640 318 L 680 318" class="wire-hud"/>
+  <path d="M 740 318 L 792 318" class="wire-hud"/>
+
+  <!-- D21 -->
+  <text x="545" y="370" class="pin" text-anchor="end">GPIO 21 (D21)</text>
+  <rect x="680" y="358" width="60" height="20" class="res"/>
+  <text x="710" y="372" font-family="monospace" font-size="10px" fill="#f59e0b" text-anchor="middle">330Ω</text>
+  <circle cx="800" cy="368" r="8" fill="#ef4444"/>
+  <text x="820" y="372" font-family="sans-serif" font-size="11px" fill="#cbd5e1">LED 3 (3 HP)</text>
+  <path d="M 640 368 L 680 368" class="wire-hud"/>
+  <path d="M 740 368 L 792 368" class="wire-hud"/>
+
+  <!-- D19 -->
+  <text x="545" y="420" class="pin" text-anchor="end">GPIO 19 (D19)</text>
+  <rect x="680" y="408" width="60" height="20" class="res"/>
+  <text x="710" y="422" font-family="monospace" font-size="10px" fill="#f59e0b" text-anchor="middle">330Ω</text>
+  <circle cx="800" cy="418" r="8" fill="#ef4444"/>
+  <text x="820" y="422" font-family="sans-serif" font-size="11px" fill="#cbd5e1">LED 2 (2 HP)</text>
+  <path d="M 640 418 L 680 418" class="wire-hud"/>
+  <path d="M 740 418 L 792 418" class="wire-hud"/>
+
+  <!-- D18 -->
+  <text x="545" y="470" class="pin" text-anchor="end">GPIO 18 (D18)</text>
+  <rect x="680" y="458" width="60" height="20" class="res"/>
+  <text x="710" y="472" font-family="monospace" font-size="10px" fill="#f59e0b" text-anchor="middle">330Ω</text>
+  <circle cx="800" cy="468" r="8" fill="#ef4444"/>
+  <text x="820" y="472" font-family="sans-serif" font-size="11px" fill="#cbd5e1">LED 1 (Crit / 1 HP)</text>
+  <path d="M 640 468 L 680 468" class="wire-hud"/>
+  <path d="M 740 468 L 792 468" class="wire-hud"/>
+
+  <!-- HUD Common Cathode Bus to GND -->
+  <path d="M 808 268 L 940 268 L 940 468 L 808 468" class="wire-gnd"/>
+  <path d="M 808 318 L 940 318" class="wire-gnd"/>
+  <path d="M 808 368 L 940 368" class="wire-gnd"/>
+  <path d="M 808 418 L 940 418" class="wire-gnd"/>
+  <path d="M 940 468 L 940 640 L 640 640" class="wire-gnd"/>
+</svg>

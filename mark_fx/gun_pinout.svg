@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 950 680" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; }
+      .card { fill: #1e293b; stroke: #334155; stroke-width: 2; rx: 12; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-size: 24px; font-weight: bold; fill: #f8fafc; }
+      .subtitle { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; }
+      .section-hdr { font-family: system-ui, -apple-system, sans-serif; font-size: 16px; font-weight: bold; fill: #38bdf8; }
+      .pin-box { fill: #0f172a; stroke: #475569; stroke-width: 1.5; rx: 4; }
+      .pin-txt { font-family: monospace; font-size: 12px; fill: #f1f5f9; font-weight: bold; text-anchor: middle; }
+      .label-txt { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #cbd5e1; }
+      .wire-pwr { stroke: #ef4444; stroke-width: 2.5; stroke-linecap: round; fill: none; }
+      .wire-gnd { stroke: #64748b; stroke-width: 2.5; stroke-linecap: round; fill: none; }
+      .wire-sig { stroke: #38bdf8; stroke-width: 2.5; stroke-linecap: round; fill: none; }
+      .wire-hud { stroke: #22c55e; stroke-width: 2.5; stroke-linecap: round; fill: none; }
+      .wire-ir  { stroke: #ec4899; stroke-width: 2.5; stroke-linecap: round; fill: none; }
+      .component { fill: #334155; stroke: #64748b; stroke-width: 2; rx: 8; }
+      .comp-txt { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; font-weight: bold; fill: #f8fafc; text-anchor: middle; }
+      .tag { fill: #0369a1; rx: 4; }
+      .tag-txt { font-family: monospace; font-size: 11px; fill: #e0f2fe; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="950" height="680" class="bg"/>
+
+  <!-- Title Block -->
+  <text x="40" y="45" class="title">MARK FX — GUN INTERNAL PINOUT &amp; WIRING</text>
+  <text x="40" y="70" class="subtitle">DOIT ESP32 DevKit V1 (30-Pin) • 5-LED HUD • Direct-Drive IR • Single Trigger • Buzzer</text>
+
+  <!-- Gun Enclosure Outline -->
+  <rect x="30" y="90" width="890" height="560" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="8 6" rx="16"/>
+  <text x="50" y="120" font-family="sans-serif" font-size="12px" fill="#38bdf8" font-weight="bold">GUN SHELL HOUSING (PVC / 3D PRINT)</text>
+
+  <!-- ESP32 Board Representation (Centered) -->
+  <rect x="340" y="160" width="270" height="440" class="card"/>
+  <rect x="415" y="140" width="120" height="30" fill="#475569" rx="4"/>
+  <text x="475" y="160" font-family="monospace" font-size="11px" fill="#f8fafc" text-anchor="middle">USB 5V IN</text>
+
+  <text x="475" y="210" class="comp-txt" font-size="16px">ESP32 DevKit V1</text>
+  <text x="475" y="230" font-family="sans-serif" font-size="11px" fill="#94a3b8" text-anchor="middle">30-PIN CH340 / CP2102</text>
+
+  <!-- ESP32 Left Header Pins (1 to 15) -->
+  <!-- Left Side: D4, D13, D15, 3V3, GND -->
+  <!-- D4 -->
+  <rect x="350" y="260" width="45" height="22" class="pin-box"/>
+  <text x="372" y="276" class="pin-txt">D4</text>
+  <!-- D13 -->
+  <rect x="350" y="300" width="45" height="22" class="pin-box"/>
+  <text x="372" y="316" class="pin-txt">D13</text>
+  <!-- D15 -->
+  <rect x="350" y="340" width="45" height="22" class="pin-box"/>
+  <text x="372" y="356" class="pin-txt">D15</text>
+  <!-- 3V3 -->
+  <rect x="350" y="380" width="45" height="22" class="pin-box"/>
+  <text x="372" y="396" class="pin-txt" fill="#ef4444">3V3</text>
+  <!-- GND -->
+  <rect x="350" y="420" width="45" height="22" class="pin-box"/>
+  <text x="372" y="436" class="pin-txt" fill="#94a3b8">GND</text>
+
+  <!-- ESP32 Right Header Pins (16 to 30) -->
+  <!-- Right Side: D33, D23, D22, D21, D19, D18 -->
+  <!-- D33 -->
+  <rect x="555" y="260" width="45" height="22" class="pin-box"/>
+  <text x="577" y="276" class="pin-txt">D33</text>
+  <!-- D23 -->
+  <rect x="555" y="300" width="45" height="22" class="pin-box"/>
+  <text x="577" y="316" class="pin-txt">D23</text>
+  <!-- D22 -->
+  <rect x="555" y="340" width="45" height="22" class="pin-box"/>
+  <text x="577" y="356" class="pin-txt">D22</text>
+  <!-- D21 -->
+  <rect x="555" y="380" width="45" height="22" class="pin-box"/>
+  <text x="577" y="396" class="pin-txt">D21</text>
+  <!-- D19 -->
+  <rect x="555" y="420" width="45" height="22" class="pin-box"/>
+  <text x="577" y="436" class="pin-txt">D19</text>
+  <!-- D18 -->
+  <rect x="555" y="460" width="45" height="22" class="pin-box"/>
+  <text x="577" y="476" class="pin-txt">D18</text>
+
+  <!-- ==================== LEFT PERIPHERALS ==================== -->
+  <!-- IR LED Barrel Assembly (Left Top) -->
+  <rect x="60" y="200" width="220" height="95" class="component"/>
+  <text x="170" y="225" class="comp-txt">940nm IR LED EMITTER</text>
+  <text x="170" y="245" font-family="sans-serif" font-size="11px" fill="#cbd5e1" text-anchor="middle">3x 330Ω in Parallel (110Ω)</text>
+  <text x="170" y="265" font-family="sans-serif" font-size="11px" fill="#f472b6" text-anchor="middle">Recessed 35mm in Barrel</text>
+
+  <!-- Wire D4 to IR LED -->
+  <path d="M 350 271 L 280 271" class="wire-ir"/>
+
+  <!-- Trigger Push Button (Left Middle) -->
+  <rect x="60" y="330" width="220" height="85" class="component"/>
+  <text x="170" y="355" class="comp-txt">TACTILE TRIGGER</text>
+  <text x="170" y="375" font-family="sans-serif" font-size="11px" fill="#cbd5e1" text-anchor="middle">Single Button to GND</text>
+  <text x="170" y="395" font-family="sans-serif" font-size="11px" fill="#38bdf8" text-anchor="middle">INPUT_PULLUP (40ms debounce)</text>
+
+  <!-- Wire D13 to Trigger -->
+  <path d="M 350 311 L 310 311 L 310 370 L 280 370" class="wire-sig"/>
+
+  <!-- 3-Wire Umbilical to Vest (Left Bottom) -->
+  <rect x="60" y="460" width="220" height="130" class="component" stroke="#38bdf8"/>
+  <text x="170" y="485" class="comp-txt" fill="#38bdf8">3-WIRE UMBILICAL</text>
+  <text x="170" y="505" font-family="sans-serif" font-size="11px" fill="#f1f5f9" text-anchor="middle">Red: 3V3 Power Rail</text>
+  <text x="170" y="525" font-family="sans-serif" font-size="11px" fill="#f1f5f9" text-anchor="middle">Black: Common Ground</text>
+  <text x="170" y="545" font-family="sans-serif" font-size="11px" fill="#f1f5f9" text-anchor="middle">Yellow: D15 (Sensor Signal)</text>
+  <text x="170" y="570" font-family="sans-serif" font-size="11px" fill="#94a3b8" text-anchor="middle">To 5x TSOP1838 Vest Array</text>
+
+  <!-- Wires for Umbilical -->
+  <path d="M 350 351 L 290 351 L 290 545 L 280 545" class="wire-sig"/>
+  <path d="M 350 391 L 300 391 L 300 505 L 280 505" class="wire-pwr"/>
+  <path d="M 350 431 L 310 431 L 310 525 L 280 525" class="wire-gnd"/>
+
+  <!-- ==================== RIGHT PERIPHERALS ==================== -->
+  <!-- Passive Buzzer (Right Top) -->
+  <rect x="670" y="170" width="220" height="85" class="component"/>
+  <text x="780" y="200" class="comp-txt">PASSIVE PIEZO BUZZER</text>
+  <text x="780" y="220" font-family="sans-serif" font-size="11px" fill="#cbd5e1" text-anchor="middle">5V Direct Drive (D33)</text>
+  <text x="780" y="240" font-family="sans-serif" font-size="11px" fill="#4ade80" text-anchor="middle">Non-blocking tone() melodies</text>
+
+  <!-- Wire D33 to Buzzer -->
+  <path d="M 600 271 L 640 271 L 640 215 L 670 215" class="wire-sig"/>
+
+  <!-- 5-LED Unicolor HUD Bar (Right Middle) -->
+  <rect x="670" y="280" width="220" height="270" class="component" stroke="#22c55e"/>
+  <text x="780" y="305" class="comp-txt" fill="#4ade80">5-LED UNICOLOR HUD</text>
+  <text x="780" y="325" font-family="sans-serif" font-size="11px" fill="#94a3b8" text-anchor="middle">330Ω Resistor per LED</text>
+
+  <!-- 5 LED items -->
+  <circle cx="700" cy="360" r="8" fill="#ef4444"/>
+  <text x="720" y="364" class="label-txt">LED 5 (Full / 5 HP): D23</text>
+
+  <circle cx="700" cy="400" r="8" fill="#ef4444"/>
+  <text x="720" y="404" class="label-txt">LED 4 (4 HP): D22</text>
+
+  <circle cx="700" cy="440" r="8" fill="#ef4444"/>
+  <text x="720" y="444" class="label-txt">LED 3 (3 HP): D21</text>
+
+  <circle cx="700" cy="480" r="8" fill="#ef4444"/>
+  <text x="720" y="484" class="label-txt">LED 2 (2 HP): D19</text>
+
+  <circle cx="700" cy="520" r="8" fill="#ef4444"/>
+  <text x="720" y="524" class="label-txt">LED 1 (Crit / 1 HP): D18</text>
+
+  <!-- Wires D23, D22, D21, D19, D18 to LEDs -->
+  <path d="M 600 311 L 650 311 L 650 360 L 670 360" class="wire-hud"/>
+  <path d="M 600 351 L 640 351 L 640 400 L 670 400" class="wire-hud"/>
+  <path d="M 600 391 L 630 391 L 630 440 L 670 440" class="wire-hud"/>
+  <path d="M 600 431 L 620 431 L 620 480 L 670 480" class="wire-hud"/>
+  <path d="M 600 471 L 670 471" class="wire-hud"/>
+
+  <!-- Legend / Footnote -->
+  <rect x="340" y="615" width="270" height="30" fill="#1e293b" rx="4"/>
+  <text x="475" y="635" font-family="sans-serif" font-size="11px" fill="#cbd5e1" text-anchor="middle">Zero LCD • Zero Neopixel • Zero Transistors</text>
+</svg>

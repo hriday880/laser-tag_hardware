@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 950 640" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; }
+      .card { fill: #1e293b; stroke: #334155; stroke-width: 2; rx: 12; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-size: 24px; font-weight: bold; fill: #f8fafc; }
+      .subtitle { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; }
+      .section-hdr { font-family: system-ui, -apple-system, sans-serif; font-size: 16px; font-weight: bold; fill: #38bdf8; }
+      .sensor-box { fill: #1e293b; stroke: #38bdf8; stroke-width: 2; rx: 8; }
+      .sensor-txt { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; font-weight: bold; fill: #f8fafc; text-anchor: middle; }
+      .sub-txt { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #94a3b8; text-anchor: middle; }
+      .wire-pwr { stroke: #ef4444; stroke-width: 2.5; stroke-linecap: round; fill: none; }
+      .wire-gnd { stroke: #64748b; stroke-width: 2.5; stroke-linecap: round; fill: none; }
+      .wire-sig { stroke: #eab308; stroke-width: 2.5; stroke-linecap: round; fill: none; }
+      .body-outline { fill: none; stroke: #475569; stroke-width: 2; stroke-dasharray: 6 6; }
+    </style>
+  </defs>
+
+  <rect width="950" height="640" class="bg"/>
+
+  <!-- Title Block -->
+  <text x="40" y="45" class="title">MARK FX — 5-SENSOR 360° VEST HARNESS</text>
+  <text x="40" y="70" class="subtitle">Parallel TSOP1838 Bus • 3 Front / 2 Back Layout • 3-Wire Umbilical to Gun (D15, GND, 3V3)</text>
+
+  <!-- Left Side: Front View (3 Sensors) -->
+  <rect x="40" y="100" width="410" height="420" class="card"/>
+  <text x="245" y="135" class="section-hdr" text-anchor="middle">FRONT CHEST &amp; SHOULDERS (3 SENSORS)</text>
+
+  <!-- Torso Outline Front -->
+  <path d="M 170 180 Q 245 160 320 180 L 340 230 L 310 460 L 180 460 L 150 230 Z" class="body-outline"/>
+
+  <!-- Sensor 2: Left Shoulder -->
+  <rect x="90" y="190" width="130" height="60" class="sensor-box"/>
+  <text x="155" y="215" class="sensor-txt">S2: L Shoulder</text>
+  <text x="155" y="235" class="sub-txt">-45° Forward Arc</text>
+
+  <!-- Sensor 1: Center Chest -->
+  <rect x="180" y="280" width="130" height="60" class="sensor-box" stroke="#22c55e"/>
+  <text x="245" y="305" class="sensor-txt" fill="#4ade80">S1: Chest Center</text>
+  <text x="245" y="325" class="sub-txt">0° Direct Line-of-Sight</text>
+
+  <!-- Sensor 3: Right Shoulder -->
+  <rect x="270" y="190" width="130" height="60" class="sensor-box"/>
+  <text x="335" y="215" class="sensor-txt">S3: R Shoulder</text>
+  <text x="335" y="235" class="sub-txt">+45° Forward Arc</text>
+
+  <!-- Right Side: Back View (2 Sensors) -->
+  <rect x="490" y="100" width="420" height="420" class="card"/>
+  <text x="700" y="135" class="section-hdr" text-anchor="middle">BACK TORSO (2 SENSORS)</text>
+
+  <!-- Torso Outline Back -->
+  <path d="M 625 180 Q 700 160 775 180 L 795 230 L 765 460 L 635 460 L 605 230 Z" class="body-outline"/>
+
+  <!-- Sensor 4: Upper Back Left -->
+  <rect x="540" y="240" width="135" height="60" class="sensor-box"/>
+  <text x="607" y="265" class="sensor-txt">S4: Upper Back L</text>
+  <text x="607" y="285" class="sub-txt">-135° Rear Arc</text>
+
+  <!-- Sensor 5: Upper Back Right -->
+  <rect x="725" y="240" width="135" height="60" class="sensor-box"/>
+  <text x="792" y="265" class="sensor-txt">S5: Upper Back R</text>
+  <text x="792" y="285" class="sub-txt">+135° Rear Arc</text>
+
+  <!-- TSOP1838 Pinout Callout (Center Bottom) -->
+  <rect x="40" y="535" width="410" height="85" class="card" stroke="#eab308"/>
+  <text x="60" y="560" font-family="sans-serif" font-size="12px" font-weight="bold" fill="#eab308">TSOP1838 SENSOR PINOUT (FACING FRONT BUMP)</text>
+  <text x="60" y="585" font-family="monospace" font-size="12px" fill="#f8fafc">Pin 1 (Left)   : OUT    ──> Yellow Wire (D15)</text>
+  <text x="60" y="605" font-family="monospace" font-size="12px" fill="#f8fafc">Pin 2 (Middle) : GND    ──> Black Wire  (GND)</text>
+  <text x="240" y="605" font-family="monospace" font-size="12px" fill="#f8fafc">Pin 3 (Right)  : VCC    ──> Red Wire    (3V3)</text>
+
+  <!-- 3-Wire Umbilical Output Box (Right Bottom) -->
+  <rect x="490" y="535" width="420" height="85" class="card" stroke="#38bdf8"/>
+  <text x="510" y="560" font-family="sans-serif" font-size="12px" font-weight="bold" fill="#38bdf8">3-WIRE UMBILICAL BUS TO GUN ENCLOSURE</text>
+  <text x="510" y="585" font-family="sans-serif" font-size="12px" fill="#cbd5e1">All 5 sensors connected in PARALLEL along nylon webbing.</text>
+  <text x="510" y="605" font-family="sans-serif" font-size="12px" fill="#94a3b8">Flexible 1.5m 28 AWG cable runs down arm directly to gun ESP32.</text>
+</svg>

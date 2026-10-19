@@ -20,3 +20,7 @@ Laser Tag/
 __pycache__/
 *.pyc
 *.pyo
+
+# Teamwork agent scratch directory
+.agents/
+
