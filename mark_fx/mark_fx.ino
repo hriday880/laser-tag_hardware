@@ -62,6 +62,14 @@ const uint32_t PLAYER_CODES[8] = {
   0x00FF4AB5   // P8: Red / Enemy 4
 };
 
+// Returns true if code matches one of the 8 recognized players
+bool isKnownPlayer(uint32_t code) {
+  for (int i = 0; i < 8; i++) {
+    if (code == PLAYER_CODES[i]) return true;
+  }
+  return false;
+}
+
 // Returns the 32-bit transmit code for this node
 uint32_t getMyShotCode() {
   String id = String(NODE_ID);
@@ -76,7 +84,10 @@ uint32_t getMyShotCode() {
   return PLAYER_CODES[0];
 }
 
+// Evaluates whether an incoming code belongs to the same team.
+// Unknown codes and ambient noise are rejected (returns false).
 bool isMyTeam(uint32_t code) {
+  if (!isKnownPlayer(code)) return false;
   String id = String(NODE_ID);
   bool iAmBlue = (id == "P1" || id == "P2" || id == "P3" || id == "P4");
   bool codeIsBlue = (code == PLAYER_CODES[0] || code == PLAYER_CODES[1] ||
@@ -90,6 +101,7 @@ IRsend irsend(IR_LED_PIN);
 decode_results results;
 WiFiUDP udp;
 Preferences prefs;
+bool udpListening = false;
 
 // ==========================================
 //             GAME & PLAYER STATE
@@ -116,6 +128,7 @@ int failCount = 0;
 bool isStandalone = false;
 unsigned long offlineRespawnAt = 0;
 unsigned long offlineShieldUntil = 0;
+unsigned long offlineCooldownUntil = 0;
 
 // Remaining time for server timers
 long remaining(long serverMs) {
@@ -135,6 +148,7 @@ const Note M_SHOT[]      = {{1800, 40}, {1200, 40}};
 const Note M_HIT[]       = {{330, 110}, {0, 70}, {262, 140}};
 const Note M_HEAL[]      = {{659, 100}, {0, 30}, {988, 220}};
 const Note M_SHIELD[]    = {{1200, 60}, {0, 50}, {1200, 60}};
+const Note M_HEARTBEAT[] = {{220, 80}, {0, 80}, {220, 80}};
 const Note M_DEATH[]     = {{784, 180}, {0, 40}, {659, 180}, {0, 40}, {523, 180}, {0, 40}, {392, 450}};
 const Note M_ELIM[]      = {{523, 300}, {0, 80}, {392, 300}, {0, 80}, {330, 300}, {0, 80}, {262, 700}};
 const Note M_GO[]        = {{1047, 450}};
@@ -147,7 +161,7 @@ const Note M_RESUME[]    = {{400, 150}, {0, 60}, {600, 200}};
 
 // Priority levels
 #define PRIO_IDLE      0
-#define PRIO_GAMEPLAY  1  // shots, ticks
+#define PRIO_GAMEPLAY  1  // shots, ticks, heartbeat
 #define PRIO_EVENT     2  // hits, heals, shield blocked
 #define PRIO_CRITICAL  3  // death, elim, match win/lose
 
@@ -156,6 +170,7 @@ int melodyLen = 0;
 int melodyIdx = 0;
 int currentPriority = PRIO_IDLE;
 unsigned long noteEndsAt = 0;
+unsigned long lastHeartbeatToneAt = 0;
 
 void buzzerOff() {
   noTone(BUZZER_PIN);
@@ -174,7 +189,7 @@ void startNote() {
 }
 
 void playSound(const Note* m, int len, int priority) {
-  if (currentMelody && priority < currentPriority && millis() < noteEndsAt) {
+  if (currentMelody && priority < currentPriority) {
     return; // Blocked by higher priority active melody
   }
   currentMelody = m;
@@ -198,6 +213,18 @@ void updateSound() {
     return;
   }
   startNote();
+}
+
+// Non-blocking acoustic low-health warning (lub-dub heartbeat every 1000ms at 1 HP)
+void updateHeartbeat() {
+  unsigned long now = millis();
+  bool inGame = (net == NET_OK && ph == "LIVE") || (isStandalone && lives > 0);
+  if (inGame && pst == "ALIVE" && hp == 1) {
+    if (now - lastHeartbeatToneAt >= 1000) {
+      lastHeartbeatToneAt = now;
+      PLAY(M_HEARTBEAT, PRIO_GAMEPLAY);
+    }
+  }
 }
 
 // ==========================================
@@ -228,16 +255,16 @@ void updateHUD() {
 
   // 2. Offline / Standalone Logic
   if (isStandalone) {
-    if (lives <= 0) {
+    if (lives <= 0 || pst == "OUT") {
       setHUD(false, false, false, false, false);
       return;
     }
-    if (now < offlineShieldUntil) {
+    if (pst == "RESPAWN" || now < offlineShieldUntil) {
       bool b = ((now / 250) % 2) == 0;
       setHUD(b, b, b, b, b);
       return;
     }
-    if (hp == 5)      setHUD(true, true, true, true, true);
+    if (hp >= 5)      setHUD(true, true, true, true, true);
     else if (hp == 4) setHUD(true, true, true, true, false);
     else if (hp == 3) setHUD(true, true, true, false, false);
     else if (hp == 2) setHUD(true, true, false, false, false);
@@ -315,35 +342,58 @@ void fireWeapon() {
 }
 
 void handleTrigger() {
-  static bool lastState = HIGH;
+  static bool debouncedState = HIGH;
+  static bool lastReading = HIGH;
   static unsigned long lastDebounceMs = 0;
 
   bool reading = digitalRead(TRIGGER_PIN);
 
-  if (reading != lastState) {
+  if (reading != lastReading) {
     lastDebounceMs = millis();
+    lastReading = reading;
   }
 
   if ((millis() - lastDebounceMs) >= 40) { // 40ms strict debounce
-    if (reading == LOW && lastState == HIGH) {
-      // Button just pressed
-      unsigned long now = millis();
-      unsigned long cooldown = (net == NET_OK && ph == "LIVE") ? FIRE_COOLDOWN_MATCH_MS : FIRE_COOLDOWN_TEST_MS;
+    if (reading != debouncedState) {
+      debouncedState = reading;
+      if (debouncedState == LOW) {
+        // Confirmed button press (falling edge)
+        unsigned long now = millis();
+        unsigned long cooldown = (net == NET_OK && ph == "LIVE") ? FIRE_COOLDOWN_MATCH_MS : FIRE_COOLDOWN_TEST_MS;
 
-      if (now - lastShotAt >= cooldown) {
-        // Match live checks
-        if (net == NET_OK && ph == "LIVE") {
-          if (pst == "ALIVE" && remaining(rsMs) == 0) {
+        if (now - lastShotAt >= cooldown) {
+          // Match live checks
+          if (net == NET_OK && ph == "LIVE") {
+            if (pst == "ALIVE" && remaining(rsMs) == 0) {
+              fireWeapon();
+            }
+          } else if (isStandalone) {
+            // Standalone mode: only fire when ALIVE and lives remain
+            if (pst == "ALIVE" && lives > 0) {
+              fireWeapon();
+            }
+          } else {
+            // Offline / Lobby test firing
             fireWeapon();
           }
-        } else {
-          // Offline / Standalone test firing always allowed
-          fireWeapon();
         }
       }
     }
   }
-  lastState = reading;
+}
+
+// ==========================================
+//       STANDALONE REFEREE TIMERS
+// ==========================================
+void updateStandalone() {
+  if (!isStandalone) return;
+  unsigned long now = millis();
+  if (pst == "RESPAWN" && now >= offlineRespawnAt) {
+    pst = "ALIVE";
+    hp = 5;
+    offlineShieldUntil = now + 3000; // 3s respawn shield protection
+    PLAY(M_SHIELD, PRIO_EVENT);
+  }
 }
 
 // ==========================================
@@ -415,7 +465,10 @@ void applyState(const String& js, const String& ev) {
   }
 
   if (ev.length()) {
-    if (ev == "HIT") PLAY(M_HIT, PRIO_EVENT);
+    if (ev == "HIT") {
+      if (hp == 1) lastHeartbeatToneAt = 0;
+      PLAY(M_HIT, PRIO_EVENT);
+    }
     else if (ev == "HEAL") PLAY(M_HEAL, PRIO_EVENT);
     else if (ev == "BLOCKED" || ev == "FULL") PLAY(M_SHIELD, PRIO_EVENT);
   }
@@ -451,7 +504,11 @@ void handleIR() {
   uint64_t code = results.value;
   irrecv.resume();
 
-  if (code == 0xFFFFFFFF || code == 0) return; // noise / repeat
+  // Filter invalid codes, 32-bit and 64-bit NEC repeat codes
+  if (code == 0 || (uint32_t)code == 0xFFFFFFFF || code == 0xFFFFFFFFFFFFFFFFULL) return;
+
+  // Filter reflections of own shot
+  if ((uint32_t)code == getMyShotCode()) return;
 
   // Match live mode
   if (net == NET_OK && ph == "LIVE" && pst == "ALIVE") {
@@ -465,27 +522,47 @@ void handleIR() {
 
   // Standalone / Offline mode referee
   if (isStandalone) {
-    if (lives <= 0) return;
-    if (millis() < offlineShieldUntil) {
-      PLAY(M_SHIELD, PRIO_EVENT);
-      return;
-    }
+    if (lives <= 0 || pst == "OUT") return;
+
+    // Reject unknown codes / ambient noise in standalone mode
+    if (!isKnownPlayer((uint32_t)code)) return;
+
+    // Block hits while respawning
+    if (pst == "RESPAWN") return;
 
     // Determine friend or enemy hit
     bool friendly = isMyTeam((uint32_t)code);
 
     if (!friendly) {
       // Enemy hit taken!
+      // Check spawn shield / invulnerability
+      if (millis() < offlineShieldUntil) {
+        PLAY(M_SHIELD, PRIO_EVENT);
+        return;
+      }
+
+      // Check 3s damage cooldown
+      if (millis() < offlineCooldownUntil) {
+        return;
+      }
+
       hp--;
-      PLAY(M_HIT, PRIO_EVENT);
-      if (hp <= 0) {
+      offlineCooldownUntil = millis() + 3000; // 3s hit cooldown
+
+      if (hp > 0) {
+        if (hp == 1) lastHeartbeatToneAt = 0;
+        PLAY(M_HIT, PRIO_EVENT);
+      } else {
         lives--;
         if (lives > 0) {
-          hp = 5;
-          offlineShieldUntil = millis() + 4000; // 4s respawn shield
+          pst = "RESPAWN";
+          hp = 0;
+          offlineRespawnAt = millis() + 10000; // 10s respawn penalty
           PLAY(M_DEATH, PRIO_CRITICAL);
         } else {
+          pst = "OUT";
           hp = 0;
+          lives = 0;
           PLAY(M_ELIM, PRIO_CRITICAL);
         }
       }
@@ -523,7 +600,8 @@ void checkDiscovery() {
     net = NET_OK;
     failCount = 0;
     isStandalone = false;
-    Serial.println("[NET] Connected to referee server: " + serverIp);
+    prefs.putString("server_ip", serverIp);
+    Serial.println("[NET] Connected to referee server: " + serverIp + " (saved to NVS)");
   }
 }
 
@@ -531,6 +609,7 @@ void updateNetwork() {
   unsigned long now = millis();
 
   if (WiFi.status() != WL_CONNECTED) {
+    udpListening = false;
     if (net == NET_OK) {
       net = NET_LOST;
       isStandalone = true;
@@ -542,6 +621,18 @@ void updateNetwork() {
     return;
   }
 
+  // WiFi is connected. Ensure UDP discovery listener is bound
+  if (!udpListening) {
+    udp.stop();
+    if (udp.begin(DISCOVERY_PORT)) {
+      udpListening = true;
+      Serial.printf("[NET] UDP bound to port %d\n", DISCOVERY_PORT);
+    }
+    if (net == NET_LOST || net == NET_DISCOVER) {
+      net = NET_DISCOVER;
+    }
+  }
+
   checkDiscovery();
 
   if (net == NET_DISCOVER || net == NET_LOST) {
@@ -551,6 +642,8 @@ void updateNetwork() {
         net = NET_OK;
         isStandalone = false;
         failCount = 0;
+        prefs.putString("server_ip", serverIp);
+        Serial.println("[NET] Connected to referee server: " + serverIp);
       }
     }
   } else if (net == NET_OK) {
@@ -590,6 +683,17 @@ void setup() {
   // Boot Chime & 5-LED Sweep
   PLAY(M_BOOT, PRIO_CRITICAL);
 
+  // NVS Preferences: Load cached server IP with fallback to MANUAL_SERVER_IP
+  prefs.begin("lasertag", false);
+  String fallbackIp = (MANUAL_SERVER_IP != nullptr) ? String(MANUAL_SERVER_IP) : "";
+  serverIp = prefs.getString("server_ip", fallbackIp);
+  if (serverIp.length() == 0 && fallbackIp.length() > 0) {
+    serverIp = fallbackIp;
+  }
+  if (serverIp.length() > 0) {
+    Serial.println("[NVS] Loaded server IP: " + serverIp);
+  }
+
   // WiFi Initialization
   WiFi.mode(WIFI_STA);
   WiFi.setSleep(false); // CRITICAL: Modem sleep ruins IR modulation timing!
@@ -606,6 +710,7 @@ void setup() {
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println("[WIFI] Connected: " + WiFi.localIP().toString());
     udp.begin(DISCOVERY_PORT);
+    udpListening = true;
     net = NET_DISCOVER;
     isStandalone = false;
   } else {
@@ -614,6 +719,7 @@ void setup() {
     isStandalone = true;
     hp = 5;
     lives = 3;
+    pst = "ALIVE";
   }
 }
 
@@ -621,9 +727,11 @@ void setup() {
 //                 MAIN LOOP
 // ==========================================
 void loop() {
-  updateSound();     // Non-blocking polyphonic buzzer
-  updateHUD();       // Non-blocking 5-LED health bar
-  handleTrigger();   // 40ms debounced weapon trigger
-  handleIR();        // TSOP1838 vest array reception
-  updateNetwork();   // Match server sync & auto-discovery
+  updateSound();      // Non-blocking polyphonic buzzer
+  updateHeartbeat();  // Acoustic low-health warning (hp == 1)
+  updateHUD();        // Non-blocking 5-LED health bar
+  updateStandalone(); // Standalone respawn and shield timers
+  handleTrigger();    // 40ms debounced weapon trigger
+  handleIR();         // TSOP1838 vest array reception
+  updateNetwork();    // Match server sync & auto-discovery
 }

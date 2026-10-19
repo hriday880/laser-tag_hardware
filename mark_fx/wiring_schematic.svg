@@ -37,9 +37,9 @@
   <!-- ==================== LEFT CIRCUIT: IR LED & TRIGGER ==================== -->
   <!-- D4 Pin -->
   <text x="375" y="210" class="pin">GPIO 4 (D4)</text>
-  <!-- 110Ω Resistor Network -->
-  <rect x="230" y="195" width="80" height="28" class="res"/>
-  <text x="270" y="213" font-family="monospace" font-size="11px" fill="#f59e0b" text-anchor="middle">110Ω (3x330)</text>
+  <!-- 100Ω Resistor (or 110Ω 3x330 Network) -->
+  <rect x="225" y="195" width="90" height="28" class="res"/>
+  <text x="270" y="213" font-family="monospace" font-size="10px" fill="#f59e0b" text-anchor="middle">100Ω (or 110Ω)</text>
   <!-- IR LED -->
   <rect x="80" y="185" width="110" height="48" class="box" stroke="#ec4899"/>
   <text x="135" y="206" class="comp-title" fill="#f472b6" text-anchor="middle">940nm IR LED</text>
@@ -92,7 +92,7 @@
   <rect x="680" y="258" width="60" height="20" class="res"/>
   <text x="710" y="272" font-family="monospace" font-size="10px" fill="#f59e0b" text-anchor="middle">330Ω</text>
   <circle cx="800" cy="268" r="8" fill="#ef4444"/>
-  <text x="820" y="272" font-family="sans-serif" font-size="11px" fill="#cbd5e1">LED 5 (Full / 5 HP)</text>
+  <text x="820" y="258" font-family="sans-serif" font-size="11px" fill="#cbd5e1">LED 5 (Full / 5 HP)</text>
   <path d="M 640 268 L 680 268" class="wire-hud"/>
   <path d="M 740 268 L 792 268" class="wire-hud"/>
 
@@ -101,7 +101,7 @@
   <rect x="680" y="308" width="60" height="20" class="res"/>
   <text x="710" y="322" font-family="monospace" font-size="10px" fill="#f59e0b" text-anchor="middle">330Ω</text>
   <circle cx="800" cy="318" r="8" fill="#ef4444"/>
-  <text x="820" y="322" font-family="sans-serif" font-size="11px" fill="#cbd5e1">LED 4 (4 HP)</text>
+  <text x="820" y="308" font-family="sans-serif" font-size="11px" fill="#cbd5e1">LED 4 (4 HP)</text>
   <path d="M 640 318 L 680 318" class="wire-hud"/>
   <path d="M 740 318 L 792 318" class="wire-hud"/>
 
@@ -110,7 +110,7 @@
   <rect x="680" y="358" width="60" height="20" class="res"/>
   <text x="710" y="372" font-family="monospace" font-size="10px" fill="#f59e0b" text-anchor="middle">330Ω</text>
   <circle cx="800" cy="368" r="8" fill="#ef4444"/>
-  <text x="820" y="372" font-family="sans-serif" font-size="11px" fill="#cbd5e1">LED 3 (3 HP)</text>
+  <text x="820" y="358" font-family="sans-serif" font-size="11px" fill="#cbd5e1">LED 3 (3 HP)</text>
   <path d="M 640 368 L 680 368" class="wire-hud"/>
   <path d="M 740 368 L 792 368" class="wire-hud"/>
 
@@ -119,7 +119,7 @@
   <rect x="680" y="408" width="60" height="20" class="res"/>
   <text x="710" y="422" font-family="monospace" font-size="10px" fill="#f59e0b" text-anchor="middle">330Ω</text>
   <circle cx="800" cy="418" r="8" fill="#ef4444"/>
-  <text x="820" y="422" font-family="sans-serif" font-size="11px" fill="#cbd5e1">LED 2 (2 HP)</text>
+  <text x="820" y="408" font-family="sans-serif" font-size="11px" fill="#cbd5e1">LED 2 (2 HP)</text>
   <path d="M 640 418 L 680 418" class="wire-hud"/>
   <path d="M 740 418 L 792 418" class="wire-hud"/>
 
@@ -128,14 +128,19 @@
   <rect x="680" y="458" width="60" height="20" class="res"/>
   <text x="710" y="472" font-family="monospace" font-size="10px" fill="#f59e0b" text-anchor="middle">330Ω</text>
   <circle cx="800" cy="468" r="8" fill="#ef4444"/>
-  <text x="820" y="472" font-family="sans-serif" font-size="11px" fill="#cbd5e1">LED 1 (Crit / 1 HP)</text>
+  <text x="820" y="458" font-family="sans-serif" font-size="11px" fill="#cbd5e1">LED 1 (Crit / 1 HP)</text>
   <path d="M 640 468 L 680 468" class="wire-hud"/>
   <path d="M 740 468 L 792 468" class="wire-hud"/>
 
-  <!-- HUD Common Cathode Bus to GND -->
-  <path d="M 808 268 L 940 268 L 940 468 L 808 468" class="wire-gnd"/>
-  <path d="M 808 318 L 940 318" class="wire-gnd"/>
-  <path d="M 808 368 L 940 368" class="wire-gnd"/>
-  <path d="M 808 418 L 940 418" class="wire-gnd"/>
-  <path d="M 940 468 L 940 640 L 640 640" class="wire-gnd"/>
+  <!-- HUD Common Cathode Bus to GND (Connected to main vertical GND bus at x=960) -->
+  <path d="M 808 268 L 960 268" class="wire-gnd"/>
+  <circle cx="960" cy="268" class="node"/>
+  <path d="M 808 318 L 960 318" class="wire-gnd"/>
+  <circle cx="960" cy="318" class="node"/>
+  <path d="M 808 368 L 960 368" class="wire-gnd"/>
+  <circle cx="960" cy="368" class="node"/>
+  <path d="M 808 418 L 960 418" class="wire-gnd"/>
+  <circle cx="960" cy="418" class="node"/>
+  <path d="M 808 468 L 960 468" class="wire-gnd"/>
+  <circle cx="960" cy="468" class="node"/>
 </svg>
