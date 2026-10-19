@@ -188,15 +188,16 @@ void startNote() {
   noteEndsAt = millis() + d;
 }
 
-void playSound(const Note* m, int len, int priority) {
+bool playSound(const Note* m, int len, int priority) {
   if (currentMelody && priority < currentPriority) {
-    return; // Blocked by higher priority active melody
+    return false; // Blocked by higher priority active melody
   }
   currentMelody = m;
   melodyLen = len;
   melodyIdx = 0;
   currentPriority = priority;
   startNote();
+  return true;
 }
 
 #define PLAY(m, p) playSound(m, sizeof(m) / sizeof(m[0]), p)
@@ -221,8 +222,9 @@ void updateHeartbeat() {
   bool inGame = (net == NET_OK && ph == "LIVE") || (isStandalone && lives > 0);
   if (inGame && pst == "ALIVE" && hp == 1) {
     if (now - lastHeartbeatToneAt >= 1000) {
-      lastHeartbeatToneAt = now;
-      PLAY(M_HEARTBEAT, PRIO_GAMEPLAY);
+      if (PLAY(M_HEARTBEAT, PRIO_GAMEPLAY)) {
+        lastHeartbeatToneAt = now;
+      }
     }
   }
 }
@@ -269,7 +271,8 @@ void updateHUD() {
     else if (hp == 3) setHUD(true, true, true, false, false);
     else if (hp == 2) setHUD(true, true, false, false, false);
     else if (hp == 1) {
-      bool b = ((now / 150) % 2) == 0;
+      // Synchronous Heartbeat Pulse: LED 1 pulses in exact lockstep with acoustic heartbeat (200ms ON, 800ms OFF)
+      bool b = (lastHeartbeatToneAt > 0) && ((now - lastHeartbeatToneAt) < 200);
       setHUD(b, false, false, false, false);
     } else {
       setHUD(false, false, false, false, false);
@@ -317,8 +320,8 @@ void updateHUD() {
   else if (hp == 3) setHUD(true, true, true, false, false);
   else if (hp == 2) setHUD(true, true, false, false, false);
   else if (hp == 1) {
-    // Critical Panic Pulse: D18 pulses at 150ms
-    bool b = ((now / 150) % 2) == 0;
+    // Critical Panic Pulse: D18 in lockstep with acoustic heartbeat (200ms ON, 800ms OFF)
+    bool b = (lastHeartbeatToneAt > 0) && ((now - lastHeartbeatToneAt) < 200);
     setHUD(b, false, false, false, false);
   } else {
     setHUD(false, false, false, false, false);
