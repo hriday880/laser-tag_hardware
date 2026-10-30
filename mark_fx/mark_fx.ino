@@ -19,6 +19,8 @@
 #include <HTTPClient.h>
 #include <Preferences.h>
 
+struct Note { uint16_t freq; uint16_t dur; };
+
 // ==========================================
 //          PLAYER NODE CONFIGURATION
 // ==========================================
@@ -140,7 +142,6 @@ long remaining(long serverMs) {
 // ==========================================
 //       NON-BLOCKING AUDIO SOUND ENGINE
 // ==========================================
-struct Note { uint16_t freq; uint16_t dur; };
 
 // Melodies
 const Note M_BOOT[]      = {{523, 90}, {0, 30}, {659, 90}, {0, 30}, {784, 160}};
