@@ -24,10 +24,12 @@ struct Note { uint16_t freq; uint16_t dur; };
 // ==========================================
 //          PLAYER NODE CONFIGURATION
 // ==========================================
-// Change this single definition for each player board: "P1" through "P8"
-#ifndef NODE_ID
-#define NODE_ID "P1"
+// Default fallback player ID if not set via boot trigger config
+#ifndef DEFAULT_NODE_ID
+#define DEFAULT_NODE_ID "P1"
 #endif
+
+String nodeId = DEFAULT_NODE_ID;
 
 // Wi-Fi credentials
 const char* ssid = "Hriday";
@@ -74,15 +76,14 @@ bool isKnownPlayer(uint32_t code) {
 
 // Returns the 32-bit transmit code for this node
 uint32_t getMyShotCode() {
-  String id = String(NODE_ID);
-  if (id == "P1") return PLAYER_CODES[0];
-  if (id == "P2") return PLAYER_CODES[1];
-  if (id == "P3") return PLAYER_CODES[2];
-  if (id == "P4") return PLAYER_CODES[3];
-  if (id == "P5") return PLAYER_CODES[4];
-  if (id == "P6") return PLAYER_CODES[5];
-  if (id == "P7") return PLAYER_CODES[6];
-  if (id == "P8") return PLAYER_CODES[7];
+  if (nodeId == "P1") return PLAYER_CODES[0];
+  if (nodeId == "P2") return PLAYER_CODES[1];
+  if (nodeId == "P3") return PLAYER_CODES[2];
+  if (nodeId == "P4") return PLAYER_CODES[3];
+  if (nodeId == "P5") return PLAYER_CODES[4];
+  if (nodeId == "P6") return PLAYER_CODES[5];
+  if (nodeId == "P7") return PLAYER_CODES[6];
+  if (nodeId == "P8") return PLAYER_CODES[7];
   return PLAYER_CODES[0];
 }
 
@@ -90,8 +91,7 @@ uint32_t getMyShotCode() {
 // Unknown codes and ambient noise are rejected (returns false).
 bool isMyTeam(uint32_t code) {
   if (!isKnownPlayer(code)) return false;
-  String id = String(NODE_ID);
-  bool iAmBlue = (id == "P1" || id == "P2" || id == "P3" || id == "P4");
+  bool iAmBlue = (nodeId == "P1" || nodeId == "P2" || nodeId == "P3" || nodeId == "P4");
   bool codeIsBlue = (code == PLAYER_CODES[0] || code == PLAYER_CODES[1] ||
                      code == PLAYER_CODES[2] || code == PLAYER_CODES[3]);
   return iAmBlue == codeIsBlue;
@@ -247,6 +247,16 @@ void setHUD(bool l1, bool l2, bool l3, bool l4, bool l5) {
   digitalWrite(HUD_PINS[4], l5 ? HIGH : LOW);
 }
 
+void displayPlayerHUD(int p) {
+  if (p <= 5) {
+    setHUD(p >= 1, p >= 2, p >= 3, p >= 4, p >= 5);
+  } else {
+    // For 6, 7, 8: LED 5 stays lit as base 5, LEDs 1..3 indicate +1, +2, +3
+    int extra = p - 5;
+    setHUD(extra >= 1, extra >= 2, extra >= 3, false, true);
+  }
+}
+
 void updateHUD() {
   unsigned long now = millis();
 
@@ -342,7 +352,7 @@ void fireWeapon() {
   irsend.sendNEC(code, 32);
   lastShotAt = millis();
   PLAY(M_SHOT, PRIO_GAMEPLAY);
-  Serial.printf("[GUN] Node %s fired 0x%08X\n", NODE_ID, code);
+  Serial.printf("[GUN] Node %s fired 0x%08X\n", nodeId.c_str(), code);
 }
 
 void handleTrigger() {
@@ -479,7 +489,7 @@ void applyState(const String& js, const String& ev) {
 }
 
 bool sendHeartbeat() {
-  String body = "{\"node_id\":\"" + String(NODE_ID) + "\",\"rssi\":" + String(WiFi.RSSI()) + "}";
+  String body = "{\"node_id\":\"" + nodeId + "\",\"rssi\":" + String(WiFi.RSSI()) + "}";
   String resp;
   if (!postJson("/heartbeat", body, resp)) return false;
   applyState(resp, "");
@@ -489,7 +499,7 @@ bool sendHeartbeat() {
 void sendHit(uint64_t code) {
   char hexBuf[20];
   snprintf(hexBuf, sizeof(hexBuf), "0x%llX", code);
-  String body = "{\"node_id\":\"" + String(NODE_ID) + "\",\"button_code\":\"" + String(hexBuf) + "\"}";
+  String body = "{\"node_id\":\"" + nodeId + "\",\"button_code\":\"" + String(hexBuf) + "\"}";
   Serial.printf("[IR] Received hit %s, sending to server...\n", hexBuf);
 
   String resp;
@@ -685,11 +695,76 @@ void setup() {
   irrecv.enableIRIn();
   irsend.begin();
 
+  // Initialize NVS Preferences & Load Saved Player ID
+  prefs.begin("lasertag", false);
+  nodeId = prefs.getString("node_id", DEFAULT_NODE_ID);
+
+  // Check for Trigger-Hold Player ID Config Mode at Boot
+  if (digitalRead(TRIGGER_PIN) == LOW) {
+    // User is holding trigger at power-on!
+    // Play alert double-beep to confirm Config Mode entered
+    tone(BUZZER_PIN, 1500, 100);
+    delay(150);
+    tone(BUZZER_PIN, 2000, 150);
+    delay(300);
+
+    int selected = 1;
+    if (nodeId.length() >= 2 && nodeId[0] == 'P') {
+      int cur = nodeId.substring(1).toInt();
+      if (cur >= 1 && cur <= 8) selected = cur;
+    }
+
+    while (digitalRead(TRIGGER_PIN) == LOW) {
+      displayPlayerHUD(selected);
+      uint16_t freq = 500 + (selected * 150);
+      tone(BUZZER_PIN, freq, 140);
+      Serial.printf("[CONFIG] Selecting Player: P%d\n", selected);
+
+      // Hold this selection for 750ms or until trigger is released
+      unsigned long t0 = millis();
+      while (millis() - t0 < 750) {
+        if (digitalRead(TRIGGER_PIN) == HIGH) break;
+        delay(10);
+      }
+      if (digitalRead(TRIGGER_PIN) == HIGH) break;
+
+      // Advance to next player: 1 -> 2 -> ... -> 8 -> 1
+      selected = (selected % 8) + 1;
+    }
+
+    // Trigger released! Save selected player ID
+    nodeId = "P" + String(selected);
+    prefs.putString("node_id", nodeId);
+    Serial.printf("[CONFIG] Locked in & Saved to Flash: %s\n", nodeId.c_str());
+
+    // Play confirmation rising chime
+    tone(BUZZER_PIN, 800, 80); delay(100);
+    tone(BUZZER_PIN, 1200, 80); delay(100);
+    tone(BUZZER_PIN, 1600, 250); delay(300);
+
+    // Flash selected HUD representation 3 times
+    for (int f = 0; f < 3; f++) {
+      displayPlayerHUD(selected);
+      delay(100);
+      setHUD(false, false, false, false, false);
+      delay(100);
+    }
+  } else {
+    Serial.printf("[BOOT] Loaded Player ID: %s\n", nodeId.c_str());
+  }
+
   // Boot Chime & 5-LED Sweep
   PLAY(M_BOOT, PRIO_CRITICAL);
 
-  // NVS Preferences: Load cached server IP with fallback to MANUAL_SERVER_IP
-  prefs.begin("lasertag", false);
+  // Briefly indicate player identity on HUD LEDs
+  int pNum = nodeId.substring(1).toInt();
+  if (pNum >= 1 && pNum <= 8) {
+    displayPlayerHUD(pNum);
+    delay(350);
+    setHUD(false, false, false, false, false);
+  }
+
+  // Load cached server IP with fallback to MANUAL_SERVER_IP
   String fallbackIp = (MANUAL_SERVER_IP != nullptr) ? String(MANUAL_SERVER_IP) : "";
   serverIp = prefs.getString("server_ip", fallbackIp);
   if (serverIp.length() == 0 && fallbackIp.length() > 0) {
