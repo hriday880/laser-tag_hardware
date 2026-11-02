@@ -7,6 +7,13 @@
 //   - Vest Harness: 5x TSOP1838 IR receivers (3 front, 2 back)
 //     in parallel on D15 via 3-wire umbilical (3V3, GND, D15).
 //   - Zero LCD, zero Neopixel strips, zero transistors, zero capacitors.
+//   - Hidden failsafe: if the whole sensor bus fails, enemy shots heard
+//     over ESP-NOW nearby count (1 in 3): enemies damage, teammates heal.
+//     Vests share signal strength per shot; only the closest-sounding
+//     vest on a team can be hit, and a real IR hit elsewhere cancels it.
+//     The player gets no signal; faults show only on the referee page.
+//   - Offline play: a live match continues on the gun's own rules, and
+//     what happened is sent to the server on reconnect.
 // ==================================================================
 
 #include <Arduino.h>
@@ -18,8 +25,15 @@
 #include <WiFiUdp.h>
 #include <HTTPClient.h>
 #include <Preferences.h>
+#include <esp_now.h>
+#include <esp_random.h>
+#include <driver/gpio.h>
 
 struct Note { uint16_t freq; uint16_t dur; };
+struct __attribute__((packed)) ShotPacket { uint8_t magic[2]; uint8_t shooter; uint16_t seq; };
+struct __attribute__((packed)) WitnessPacket { uint8_t magic[2]; uint8_t reporter; uint8_t shooter; uint16_t seq; int8_t rssi; uint8_t claimed; };
+struct JournalEntry { uint32_t id; char kind; uint8_t shooter; bool assist; };
+struct ShotEvent { bool witness; bool claimed; uint8_t reporter; uint8_t shooter; uint16_t seq; int8_t rssi; unsigned long at; };
 
 // ==========================================
 //          PLAYER NODE CONFIGURATION
@@ -44,6 +58,7 @@ const char* MANUAL_SERVER_IP = "";
 //              PIN DEFINITIONS
 // ==========================================
 // ESP32 DOIT DevKit V1 (30-pin) Pin Mapping:
+const uint8_t  IR_TIMING_TOLERANCE = 40; // Library default is 25; only known player codes are accepted
 const uint16_t IR_RX_PIN      = 15;  // Board Pin D15 -> 5x TSOP1838 OUT joined
 const uint16_t IR_LED_PIN     = 4;   // Board Pin D4  -> 940nm IR LED (+) via 100R-110R
 const int      TRIGGER_PIN    = 13;  // Board Pin D13 -> Push switch to GND (INPUT_PULLUP)
@@ -112,7 +127,7 @@ String ph = "LOBBY";      // LOBBY | COUNTDOWN | LIVE | PAUSED | GAMEOVER
 String pst = "ALIVE";     // ALIVE | RESPAWN | OUT
 int hp = 5, mhp = 5;
 int lives = 3, mlv = 3;
-long tmMs = 0, rsMs = 0, prMs = 0, cdMs = 0;
+long tmMs = 0, rsMs = 0, prMs = 0, cdMs = 0, dsMs = 0;
 unsigned long stateAt = 0;
 bool haveState = false;
 
@@ -125,12 +140,55 @@ unsigned long lastProbe = 0;
 unsigned long lastReconnect = 0;
 const unsigned long HEARTBEAT_MS = 1000;
 int failCount = 0;
+const unsigned long NO_SERVER_PLAY_AFTER_MS = 15000;
 
 // Standalone offline referee
 bool isStandalone = false;
 unsigned long offlineRespawnAt = 0;
 unsigned long offlineShieldUntil = 0;
 unsigned long offlineCooldownUntil = 0;
+unsigned long offlineDisarmUntil = 0;
+unsigned long offlineDisarmMs = 10000;
+// Match rules, refreshed from the server so offline play stays consistent
+unsigned long offlineRespawnMs = 10000, offlineShieldMs = 3000, offlineHitCooldownMs = 3000, offlineMedicMs = 20000;
+// Events from a live match played offline, replayed to the server on reconnect
+const int JOURNAL_LEN = 40;
+JournalEntry journal[JOURNAL_LEN];
+int journalCount = 0;
+uint32_t journalNextId = 1, bootNonce = 0;
+long matchId = 0;
+bool offlineMatch = false;
+bool offlineMedicUsed[8] = {false};
+unsigned long offlineMedicAt[8] = {0};
+
+// Vest health & hidden failsafe (reported in every heartbeat)
+const unsigned long STUCK_LOW_MS        = 500;  // Longest valid NEC low is 9ms
+const unsigned long SENSOR_PROBE_MS     = 500;
+const unsigned long BLASTER_PROBE_MS    = 2000;
+const unsigned long PROBE_QUIET_MS      = 300;  // No probes right after firing
+const int           PROBE_STRIKES       = 3;
+const unsigned long FAULT_RECOVERY_MS   = 5000;
+const unsigned long DOUBLE_HIT_WINDOW_MS = 150;
+const unsigned long ASSIST_DECISION_MS  = 200;  // Waits for other vests' reports
+const int           WITNESS_MARGIN_DB   = 3;    // Another vest must be this much stronger
+const int           ASSIST_RSSI_MIN     = -65;  // dBm; rough "nearby" gate
+const int           ASSIST_HIT_ODDS     = 3;    // 1 in 3
+
+bool busStuckLow = false;
+int  sensorOpenStrikes = 0;
+bool sensorFaultLatched = false;
+const char* sensorFaultName = "OK";
+unsigned long lastSensorFaultAt = 0;
+bool blasterOpen = false;
+int  blasterOpenStrikes = 0;
+bool refereeAssist = false;
+bool espNowReady = false;
+uint32_t assistHits = 0, assistMisses = 0, assistDoubles = 0, assistNotTarget = 0;
+String lastDoublePair = "";
+int pendingShooter = -1;
+
+bool assistActive() { return sensorFaultLatched || refereeAssist; }
+String sensorStatus() { return sensorFaultLatched ? String(sensorFaultName) : String("OK"); }
 
 // Remaining time for server timers
 long remaining(long serverMs) {
@@ -173,8 +231,11 @@ int currentPriority = PRIO_IDLE;
 unsigned long noteEndsAt = 0;
 unsigned long lastHeartbeatToneAt = 0;
 
+// Assigned from the server dashboard and saved to NVS. Active buzzers beep by themselves on DC.
+bool buzzerActive = false;
+
 void buzzerOff() {
-  noTone(BUZZER_PIN);
+  if (!buzzerActive) noTone(BUZZER_PIN);
   digitalWrite(BUZZER_PIN, LOW);
 }
 
@@ -182,7 +243,12 @@ void startNote() {
   uint16_t f = currentMelody[melodyIdx].freq;
   uint16_t d = currentMelody[melodyIdx].dur;
   if (f > 0) {
-    tone(BUZZER_PIN, f, d);
+    if (buzzerActive) {
+      pinMode(BUZZER_PIN, OUTPUT);
+      digitalWrite(BUZZER_PIN, HIGH); // Fixed pitch: melodies keep only their rhythm
+    } else {
+      tone(BUZZER_PIN, f, d);
+    }
   } else {
     buzzerOff();
   }
@@ -343,14 +409,20 @@ void updateHUD() {
 //        GUN TRIGGER (TACTILE SWITCH)
 // ==========================================
 unsigned long lastShotAt = 0;
-const unsigned long FIRE_COOLDOWN_MATCH_MS = 600;
-const unsigned long FIRE_COOLDOWN_TEST_MS  = 500;
+const unsigned long FIRE_COOLDOWN_MS = 1000; // One shot per second, every mode
+
+// True while this player is locked out of firing after taking a hit
+bool isDisarmed() {
+  if (isStandalone) return millis() < offlineDisarmUntil;
+  return remaining(dsMs) > 0;
+}
 
 void fireWeapon() {
   uint32_t code = getMyShotCode();
   triggerMuzzleFlash();
   irsend.sendNEC(code, 32);
   lastShotAt = millis();
+  broadcastShot();
   PLAY(M_SHOT, PRIO_GAMEPLAY);
   Serial.printf("[GUN] Node %s fired 0x%08X\n", nodeId.c_str(), code);
 }
@@ -373,18 +445,19 @@ void handleTrigger() {
       if (debouncedState == LOW) {
         // Confirmed button press (falling edge)
         unsigned long now = millis();
-        unsigned long cooldown = (isStandalone || (net == NET_OK && ph == "LIVE")) ? FIRE_COOLDOWN_MATCH_MS : FIRE_COOLDOWN_TEST_MS;
 
-        if (now - lastShotAt >= cooldown) {
+        if (now - lastShotAt >= FIRE_COOLDOWN_MS) {
           // Match live checks
           if (net == NET_OK && ph == "LIVE") {
             if (pst == "ALIVE" && remaining(rsMs) == 0) {
-              fireWeapon();
+              if (isDisarmed()) PLAY(M_WARN, PRIO_GAMEPLAY);
+              else fireWeapon();
             }
           } else if (isStandalone) {
             // Standalone mode: only fire when ALIVE and lives remain
             if (pst == "ALIVE" && lives > 0) {
-              fireWeapon();
+              if (isDisarmed()) PLAY(M_WARN, PRIO_GAMEPLAY);
+              else fireWeapon();
             }
           } else {
             // Offline / Lobby test firing
@@ -404,8 +477,8 @@ void updateStandalone() {
   unsigned long now = millis();
   if (pst == "RESPAWN" && now >= offlineRespawnAt) {
     pst = "ALIVE";
-    hp = 5;
-    offlineShieldUntil = now + 3000; // 3s respawn shield protection
+    hp = mhp;
+    offlineShieldUntil = now + offlineShieldMs; // Respawn shield protection
     PLAY(M_SHIELD, PRIO_EVENT);
   }
 }
@@ -456,6 +529,24 @@ void applyState(const String& js, const String& ev) {
   v = parseJson(js, "rs");   if (v.length()) rsMs = v.toInt();
   v = parseJson(js, "pr");   if (v.length()) prMs = v.toInt();
   v = parseJson(js, "cd");   if (v.length()) cdMs = v.toInt();
+  v = parseJson(js, "ds");   if (v.length()) dsMs = v.toInt();
+  v = parseJson(js, "sds");  if (v.length()) offlineDisarmMs = v.toInt() * 1000UL;
+  v = parseJson(js, "mid");  if (v.length()) matchId = v.toInt();
+  v = parseJson(js, "srs");  if (v.length()) offlineRespawnMs = v.toInt() * 1000UL;
+  v = parseJson(js, "spr");  if (v.length()) offlineShieldMs = v.toInt() * 1000UL;
+  v = parseJson(js, "scd");  if (v.length()) offlineHitCooldownMs = v.toInt() * 1000UL;
+  v = parseJson(js, "smd");  if (v.length()) offlineMedicMs = v.toInt() * 1000UL;
+  v = parseJson(js, "ast");  if (v.length()) refereeAssist = (v == "1");
+  v = parseJson(js, "bz");
+  if (v.length() && (v == "1") != buzzerActive) {
+    buzzerOff();
+    currentMelody = nullptr;
+    currentPriority = PRIO_IDLE;
+    buzzerActive = (v == "1");
+    prefs.putBool("buzzer_active", buzzerActive);
+    Serial.printf("[BUZZER] Type set to %s\n", buzzerActive ? "ACTIVE" : "PASSIVE");
+    PLAY(M_BOOT, PRIO_CRITICAL); // Confirmation beep from the newly assigned mode
+  }
   stateAt = millis();
   haveState = true;
 
@@ -488,18 +579,57 @@ void applyState(const String& js, const String& ev) {
   }
 }
 
+void journalAdd(uint32_t code, char kind, bool assisted) {
+  if (!offlineMatch) return;
+  if (journalCount == JOURNAL_LEN) { // Keep the newest; final HP and lives are sent separately
+    memmove(journal, journal + 1, sizeof(JournalEntry) * (JOURNAL_LEN - 1));
+    journalCount--;
+  }
+  uint8_t shooter = 0;
+  for (int i = 0; i < 8; i++) if (PLAYER_CODES[i] == code) shooter = i;
+  journal[journalCount++] = {journalNextId++, kind, shooter, assisted};
+}
+
+// Sends the offline journal; the journal stays until the server confirms it
+bool syncOffline() {
+  if (!offlineMatch) return true;
+  String body = "{\"node_id\":\"" + nodeId + "\",\"boot\":" + String(bootNonce) + ",\"mid\":" + String(matchId) +
+                ",\"hp\":" + String(hp) + ",\"lv\":" + String(lives) + ",\"st\":\"" + pst + "\"" +
+                ",\"rs\":" + String(pst == "RESPAWN" && millis() < offlineRespawnAt ? offlineRespawnAt - millis() : 0) +
+                ",\"pr\":" + String(millis() < offlineShieldUntil ? offlineShieldUntil - millis() : 0) +
+                ",\"cd\":" + String(millis() < offlineCooldownUntil ? offlineCooldownUntil - millis() : 0) +
+                ",\"ds\":" + String(millis() < offlineDisarmUntil ? offlineDisarmUntil - millis() : 0) + ",\"ev\":[";
+  for (int i = 0; i < journalCount; i++) {
+    if (i) body += ",";
+    body += "[" + String(journal[i].id) + ",\"" + String(journal[i].kind) + "\"," + String(journal[i].shooter) + "," + String(journal[i].assist ? 1 : 0) + "]";
+  }
+  body += "]}";
+  String resp;
+  if (!postJson("/sync", body, resp)) return false;
+  Serial.printf("[NET] Synced %d offline events\n", journalCount);
+  journalCount = 0;
+  offlineMatch = false;
+  applyState(resp, "");
+  return true;
+}
+
 bool sendHeartbeat() {
-  String body = "{\"node_id\":\"" + nodeId + "\",\"rssi\":" + String(WiFi.RSSI()) + "}";
+  if (!syncOffline()) return false;
+  String body = "{\"node_id\":\"" + nodeId + "\",\"rssi\":" + String(WiFi.RSSI()) +
+                ",\"s\":\"" + sensorStatus() + "\",\"b\":\"" + String(blasterOpen ? "OPEN" : "OK") +
+                "\",\"en\":" + String(espNowReady ? 1 : 0) + ",\"a\":" + String(assistActive() ? 1 : 0) + ",\"bz\":" + String(buzzerActive ? 1 : 0) +
+                ",\"ah\":" + String(assistHits) + ",\"am\":" + String(assistMisses) +
+                ",\"an\":" + String(assistNotTarget) + ",\"ad\":" + String(assistDoubles) + ",\"dp\":\"" + lastDoublePair + "\"}";
   String resp;
   if (!postJson("/heartbeat", body, resp)) return false;
   applyState(resp, "");
   return true;
 }
 
-void sendHit(uint64_t code) {
+void sendHit(uint64_t code, bool assisted) {
   char hexBuf[20];
   snprintf(hexBuf, sizeof(hexBuf), "0x%llX", code);
-  String body = "{\"node_id\":\"" + nodeId + "\",\"button_code\":\"" + String(hexBuf) + "\"}";
+  String body = "{\"node_id\":\"" + nodeId + "\",\"button_code\":\"" + String(hexBuf) + "\",\"assist\":" + String(assisted ? 1 : 0) + "}";
   Serial.printf("[IR] Received hit %s, sending to server...\n", hexBuf);
 
   String resp;
@@ -513,31 +643,74 @@ void sendHit(uint64_t code) {
 // ==========================================
 //           TSOP1838 IR RECEPTION
 // ==========================================
+// Rescues a full NEC frame with exactly one damaged bit, only if it can match one player.
+// Player codes differ by as little as 2 bits, so anything ambiguous is rejected.
+uint32_t repairNecFrame(const decode_results& r) {
+  if (r.rawlen < 67) return 0;
+  uint32_t hdrMark = r.rawbuf[1] * kRawTick;
+  uint32_t hdrSpace = r.rawbuf[2] * kRawTick;
+  if (hdrMark < 4500 || hdrMark > 13500 || hdrSpace < 2000 || hdrSpace > 6500) return 0;
+  uint32_t value = 0;
+  for (int i = 0; i < 32; i++) {
+    value = (value << 1) | ((r.rawbuf[4 + 2 * i] * kRawTick) > 1125 ? 1 : 0);
+  }
+  uint32_t match = 0;
+  int matches = 0;
+  for (int i = 0; i < 8; i++) {
+    int distance = __builtin_popcount(value ^ PLAYER_CODES[i]);
+    if (distance == 0) return PLAYER_CODES[i];
+    if (distance == 1) {
+      match = PLAYER_CODES[i];
+      matches++;
+    }
+  }
+  return matches == 1 ? match : 0;
+}
+
 void handleIR() {
   if (!irrecv.decode(&results)) return;
   uint64_t code = results.value;
+  if (!isKnownPlayer((uint32_t)code)) {
+    uint32_t repaired = repairNecFrame(results);
+    if (repaired) {
+      Serial.printf("[IR] Repaired damaged frame 0x%08X -> 0x%08X\n", (uint32_t)code, repaired);
+      code = repaired;
+    }
+  }
   irrecv.resume();
 
   // Filter invalid codes, 32-bit and 64-bit NEC repeat codes
   if (code == 0 || (uint32_t)code == 0xFFFFFFFF || code == 0xFFFFFFFFFFFFFFFFULL) return;
 
+  // A clean known code proves the sensor bus is alive
+  if (isKnownPlayer((uint32_t)code)) markSensorsAlive();
+
   // Filter reflections of own shot
   if ((uint32_t)code == getMyShotCode()) return;
 
+  claimShot((uint32_t)code); // Before any blocking HTTP call
+  applyShot(code, false);
+}
+
+void applyShot(uint64_t code, bool assisted) {
   // Match live mode
   if (net == NET_OK && ph == "LIVE" && pst == "ALIVE") {
     if (!isKnownPlayer((uint32_t)code)) return;
-    if (remaining(prMs) > 0 || remaining(cdMs) > 0) {
+    // Shield and hit cooldown only stop enemy shots; the server rules on teammates
+    if (!isMyTeam((uint32_t)code) && (remaining(prMs) > 0 || remaining(cdMs) > 0)) {
       if (remaining(prMs) > 0) PLAY(M_SHIELD, PRIO_EVENT);
       return;
     }
-    sendHit(code);
+    sendHit(code, assisted);
     return;
   }
 
   // Standalone / Offline mode referee
   if (isStandalone) {
     if (lives <= 0 || pst == "OUT") return;
+
+    // A match that was live when the connection dropped still has its own clock
+    if (offlineMatch && remaining(tmMs) == 0) return;
 
     // Reject unknown codes / ambient noise in standalone mode
     if (!isKnownPlayer((uint32_t)code)) return;
@@ -560,9 +733,11 @@ void handleIR() {
       if (millis() < offlineCooldownUntil) {
         return;
       }
+      journalAdd((uint32_t)code, 'D', assisted);
 
       hp--;
-      offlineCooldownUntil = millis() + 3000; // 3s hit cooldown
+      offlineCooldownUntil = millis() + offlineHitCooldownMs;
+      offlineDisarmUntil = millis() + offlineDisarmMs;
 
       if (hp > 0) {
         if (hp == 1) lastHeartbeatToneAt = 0;
@@ -572,7 +747,7 @@ void handleIR() {
         if (lives > 0) {
           pst = "RESPAWN";
           hp = 0;
-          offlineRespawnAt = millis() + 10000; // 10s respawn penalty
+          offlineRespawnAt = millis() + offlineRespawnMs;
           PLAY(M_DEATH, PRIO_CRITICAL);
         } else {
           pst = "OUT";
@@ -582,8 +757,16 @@ void handleIR() {
         }
       }
     } else {
-      // Friendly medic heal!
-      if (hp < 5) {
+      // Friendly medic heal! One per medic per cooldown, same as the server
+      int medic = -1;
+      for (int i = 0; i < 8; i++) if (PLAYER_CODES[i] == (uint32_t)code) medic = i;
+      if (medic >= 0 && offlineMedicUsed[medic] && millis() - offlineMedicAt[medic] < offlineMedicMs) return;
+      if (hp < mhp) {
+        journalAdd((uint32_t)code, 'H', assisted);
+        if (medic >= 0) {
+          offlineMedicUsed[medic] = true;
+          offlineMedicAt[medic] = millis();
+        }
         hp++;
         PLAY(M_HEAL, PRIO_EVENT);
       } else {
@@ -595,6 +778,302 @@ void handleIR() {
 
   // Lobby test mode
   PLAY(M_TICK, PRIO_GAMEPLAY);
+}
+
+// ==========================================
+//       SENSOR & BLASTER SELF-CHECKS
+// ==========================================
+void markSensorsAlive() {
+  sensorOpenStrikes = 0;
+  sensorFaultLatched = false;
+  pendingShooter = -1; // Same shot may also arrive over ESP-NOW
+}
+
+// Runs continuously: lobby, pre-match countdown and between shots in a match.
+void updateVestHealth() {
+  static unsigned long lowSince = 0;
+  static uint32_t lowSamples = 0;
+  static unsigned long lastSensorProbe = 0;
+  static unsigned long lastBlasterProbe = 0;
+  unsigned long now = millis();
+  bool low = digitalRead(IR_RX_PIN) == LOW;
+
+  // Stuck LOW: requires many consecutive samples so blocking HTTP calls can't fake it
+  if (low) {
+    if (lowSamples == 0) lowSince = now;
+    lowSamples++;
+  } else {
+    lowSamples = 0;
+  }
+  busStuckLow = lowSamples >= 20 && (now - lowSince) >= STUCK_LOW_MS;
+
+  bool quiet = (now - lastShotAt) >= PROBE_QUIET_MS;
+
+  // Open bus: TSOP pull-ups beat the weak internal pull-down; a disconnected bus can't
+  if (!low && quiet && now - lastSensorProbe >= SENSOR_PROBE_MS) {
+    lastSensorProbe = now;
+    gpio_set_pull_mode((gpio_num_t)IR_RX_PIN, GPIO_PULLDOWN_ONLY);
+    delayMicroseconds(60);
+    bool stillHigh = digitalRead(IR_RX_PIN) == HIGH;
+    gpio_set_pull_mode((gpio_num_t)IR_RX_PIN, GPIO_PULLUP_ONLY);
+    sensorOpenStrikes = stillHigh ? 0 : sensorOpenStrikes + 1;
+  }
+
+  bool open = sensorOpenStrikes >= PROBE_STRIKES;
+  if (busStuckLow || open) {
+    if (!sensorFaultLatched) Serial.printf("[HEALTH] Sensor bus fault: %s -> failsafe on\n", busStuckLow ? "STUCK_LOW" : "OPEN");
+    sensorFaultLatched = true;
+    sensorFaultName = busStuckLow ? "STUCK_LOW" : "OPEN";
+    lastSensorFaultAt = now;
+  } else if (sensorFaultLatched && now - lastSensorFaultAt >= FAULT_RECOVERY_MS) {
+    sensorFaultLatched = false;
+    Serial.println("[HEALTH] Sensor bus recovered -> failsafe off");
+  }
+
+  // Blaster: pull-up through a good LED sits near its forward voltage (reads LOW); an open LED reads HIGH
+  if (quiet && now - lastBlasterProbe >= BLASTER_PROBE_MS) {
+    lastBlasterProbe = now;
+    pinMode(IR_LED_PIN, INPUT_PULLUP);
+    delayMicroseconds(50);
+    bool ledOpen = digitalRead(IR_LED_PIN) == HIGH;
+    irsend.begin();
+    blasterOpenStrikes = ledOpen ? blasterOpenStrikes + 1 : 0;
+    bool nowOpen = blasterOpenStrikes >= PROBE_STRIKES;
+    if (nowOpen != blasterOpen) Serial.printf("[HEALTH] Blaster %s\n", nowOpen ? "OPEN" : "OK");
+    blasterOpen = nowOpen;
+  }
+}
+
+// ==========================================
+//     HIDDEN FAILSAFE (ESP-NOW PROXIMITY)
+// ==========================================
+const uint8_t BROADCAST_ADDR[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+const int SHOT_QUEUE_LEN = 16;
+volatile ShotEvent shotQueue[SHOT_QUEUE_LEN];
+volatile int shotHead = 0, shotTail = 0;
+portMUX_TYPE shotMux = portMUX_INITIALIZER_UNLOCKED;
+unsigned long lastEspNowInit = 0;
+int espNowSendFails = 0;
+const unsigned long ESPNOW_RETRY_MS = 5000;
+const int ESPNOW_MAX_SEND_FAILS = 3;
+uint16_t shotSeq = 0;
+int32_t lastSeqSeen[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
+uint16_t pendingSeq = 0;
+int pendingRssi = 0;
+// This vest's signal report for each shooter's latest shot, sent after a random delay
+bool reportWaiting[8] = {false};
+unsigned long reportDueAt[8] = {0};
+uint16_t reportSeq[8] = {0};
+int8_t reportRssi[8] = {0};
+// Strongest teammate report and latest real IR claim for each shooter
+int32_t witnessSeq[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
+int witnessBest[8] = {0};
+bool claimSeen[8] = {false};
+unsigned long claimAt[8] = {0};
+unsigned long pendingAt = 0;
+bool pendingDouble = false;
+String pendingPair = "";
+
+void onShotPacket(const esp_now_recv_info_t* info, const uint8_t* data, int len) {
+  ShotEvent e = {};
+  if (len == sizeof(ShotPacket)) {
+    ShotPacket p;
+    memcpy(&p, data, sizeof(p));
+    if (p.magic[0] != 'L' || p.magic[1] != 'T' || p.shooter >= 8) return;
+    e.shooter = p.shooter;
+    e.seq = p.seq;
+    e.rssi = info->rx_ctrl ? info->rx_ctrl->rssi : -127;
+  } else if (len == sizeof(WitnessPacket)) {
+    WitnessPacket p;
+    memcpy(&p, data, sizeof(p));
+    if (p.magic[0] != 'L' || p.magic[1] != 'W' || p.shooter >= 8 || p.reporter >= 8) return;
+    e.witness = true;
+    e.claimed = p.claimed;
+    e.reporter = p.reporter;
+    e.shooter = p.shooter;
+    e.seq = p.seq;
+    e.rssi = p.rssi;
+  } else {
+    return;
+  }
+  portENTER_CRITICAL(&shotMux);
+  int next = (shotHead + 1) % SHOT_QUEUE_LEN;
+  if (next != shotTail) {
+    shotQueue[shotHead].witness = e.witness;
+    shotQueue[shotHead].claimed = e.claimed;
+    shotQueue[shotHead].reporter = e.reporter;
+    shotQueue[shotHead].shooter = e.shooter;
+    shotQueue[shotHead].seq = e.seq;
+    shotQueue[shotHead].rssi = e.rssi;
+    shotQueue[shotHead].at = millis();
+    shotHead = next;
+  }
+  portEXIT_CRITICAL(&shotMux);
+}
+
+void initEspNow() {
+  lastEspNowInit = millis();
+  espNowSendFails = 0;
+  esp_now_deinit();
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("[ESPNOW] Init failed, will retry");
+    return;
+  }
+  esp_now_register_recv_cb(onShotPacket);
+  esp_now_peer_info_t peer = {};
+  memcpy(peer.peer_addr, BROADCAST_ADDR, 6);
+  peer.channel = 0; // Follow the current Wi-Fi channel
+  peer.ifidx = WIFI_IF_STA;
+  peer.encrypt = false;
+  espNowReady = esp_now_add_peer(&peer) == ESP_OK;
+  Serial.println(espNowReady ? "[ESPNOW] Ready" : "[ESPNOW] Peer failed, will retry");
+}
+
+// A send error means the radio link is unusable: mark it down so it restarts
+void espNowSend(const uint8_t* data, size_t len) {
+  if (esp_now_send(BROADCAST_ADDR, data, len) == ESP_OK) {
+    espNowSendFails = 0;
+  } else if (++espNowSendFails >= ESPNOW_MAX_SEND_FAILS) {
+    espNowReady = false;
+    Serial.println("[ESPNOW] Send failing, restarting radio");
+  }
+}
+
+void updateEspNow() {
+  if (!espNowReady && millis() - lastEspNowInit >= ESPNOW_RETRY_MS) initEspNow();
+}
+
+void broadcastShot() {
+  if (!espNowReady) return;
+  int me = nodeId.substring(1).toInt() - 1;
+  if (me < 0 || me >= 8) return;
+  ShotPacket p = {{'L', 'T'}, (uint8_t)me, shotSeq++};
+  espNowSend((const uint8_t*)&p, sizeof(p));
+}
+
+void sendWitness(int shooter, uint16_t seq, int8_t rssi, bool claimed) {
+  if (!espNowReady) return;
+  int me = nodeId.substring(1).toInt() - 1;
+  if (me < 0 || me >= 8) return;
+  WitnessPacket p = {{'L', 'W'}, (uint8_t)me, (uint8_t)shooter, seq, rssi, (uint8_t)(claimed ? 1 : 0)};
+  espNowSend((const uint8_t*)&p, sizeof(p));
+}
+
+// Tells failsafe vests this shot physically landed here
+void claimShot(uint32_t code) {
+  for (int i = 0; i < 8; i++) {
+    if (PLAYER_CODES[i] == code) sendWitness(i, 0, 0, true);
+  }
+}
+
+bool popShot(ShotEvent& e) {
+  bool got = false;
+  portENTER_CRITICAL(&shotMux);
+  if (shotTail != shotHead) {
+    e.witness = shotQueue[shotTail].witness;
+    e.claimed = shotQueue[shotTail].claimed;
+    e.reporter = shotQueue[shotTail].reporter;
+    e.shooter = shotQueue[shotTail].shooter;
+    e.seq = shotQueue[shotTail].seq;
+    e.rssi = shotQueue[shotTail].rssi;
+    e.at = shotQueue[shotTail].at;
+    shotTail = (shotTail + 1) % SHOT_QUEUE_LEN;
+    got = true;
+  }
+  portEXIT_CRITICAL(&shotMux);
+  return got;
+}
+
+void updateAssist() {
+  bool inGame = (net == NET_OK && ph == "LIVE" && pst == "ALIVE") ||
+                (isStandalone && pst == "ALIVE" && lives > 0);
+  bool armed = assistActive() && inGame;
+  // Outside a match, working sensors just tick on any shot; match that so nothing gives it away
+  bool testMode = assistActive() && !inGame && !isStandalone;
+  if (!armed) pendingShooter = -1;
+
+  ShotEvent e;
+  while (popShot(e)) {
+    if (e.witness) {
+      if (e.claimed) {
+        claimSeen[e.shooter] = true;
+        claimAt[e.shooter] = e.at;
+      } else if (isMyTeam(PLAYER_CODES[e.reporter])) {
+        // Only teammates compete: the shooter's own side always sounds closer
+        if (witnessSeq[e.shooter] != e.seq) {
+          witnessSeq[e.shooter] = e.seq;
+          witnessBest[e.shooter] = e.rssi;
+        } else if (e.rssi > witnessBest[e.shooter]) {
+          witnessBest[e.shooter] = e.rssi;
+        }
+      }
+      continue;
+    }
+    if (lastSeqSeen[e.shooter] == e.seq) continue; // Duplicate packet
+    lastSeqSeen[e.shooter] = e.seq;
+    uint32_t code = PLAYER_CODES[e.shooter];
+    if (code == getMyShotCode()) continue;
+    if (inGame) {
+      reportWaiting[e.shooter] = true;
+      reportDueAt[e.shooter] = e.at + 5 + esp_random() % 40; // Spread out so reports don't collide
+      reportSeq[e.shooter] = e.seq;
+      reportRssi[e.shooter] = e.rssi;
+    }
+    if (!armed && !testMode) continue;
+    if (e.rssi < ASSIST_RSSI_MIN) {
+      Serial.printf("[ASSIST] P%d too far (%d dBm)\n", e.shooter + 1, e.rssi);
+      continue;
+    }
+    if (testMode) {
+      PLAY(M_TICK, PRIO_GAMEPLAY);
+      continue;
+    }
+    if (pendingShooter < 0) {
+      pendingShooter = e.shooter;
+      pendingAt = e.at;
+      pendingSeq = e.seq;
+      pendingRssi = e.rssi;
+      pendingDouble = false;
+      pendingPair = "P" + String(e.shooter + 1);
+    } else if (e.shooter != pendingShooter && e.at - pendingAt <= DOUBLE_HIT_WINDOW_MS) {
+      pendingDouble = true;
+      pendingPair += "+P" + String(e.shooter + 1);
+    }
+  }
+
+  for (int i = 0; i < 8; i++) {
+    if (reportWaiting[i] && (long)(millis() - reportDueAt[i]) >= 0) {
+      reportWaiting[i] = false;
+      sendWitness(i, reportSeq[i], reportRssi[i], false);
+    }
+  }
+
+  // Decide once the window closes, so a second shooter or another vest can still cancel it
+  if (pendingShooter < 0 || millis() - pendingAt <= ASSIST_DECISION_MS) return;
+  int shooter = pendingShooter;
+  pendingShooter = -1;
+
+  if (pendingDouble) {
+    assistDoubles++;
+    lastDoublePair = pendingPair;
+    Serial.printf("[ASSIST] Double hit %s: both ignored\n", pendingPair.c_str());
+    return;
+  }
+  bool claimed = claimSeen[shooter] && labs((long)(claimAt[shooter] - pendingAt)) <= (long)ASSIST_DECISION_MS;
+  bool outranked = witnessSeq[shooter] == pendingSeq && witnessBest[shooter] > pendingRssi + WITNESS_MARGIN_DB;
+  if (claimed || outranked) {
+    assistNotTarget++;
+    Serial.printf("[ASSIST] P%d not aimed here (%s)\n", shooter + 1, claimed ? "real hit elsewhere" : "teammate closer");
+    return;
+  }
+  if (esp_random() % ASSIST_HIT_ODDS == 0) {
+    assistHits++;
+    Serial.printf("[ASSIST] P%d counted as hit\n", shooter + 1);
+    applyShot(PLAYER_CODES[shooter], true);
+  } else {
+    assistMisses++;
+    Serial.printf("[ASSIST] P%d rolled miss\n", shooter + 1);
+  }
 }
 
 // ==========================================
@@ -620,14 +1099,27 @@ void checkDiscovery() {
   }
 }
 
+// Carries a live match over to the gun's own rules, keeping HP, lives and timers exactly as they are
+void enterOffline() {
+  unsigned long now = millis();
+  if (net == NET_OK && ph == "LIVE" && !offlineMatch) {
+    offlineMatch = true;
+    offlineRespawnAt = now + remaining(rsMs);
+    offlineShieldUntil = now + remaining(prMs);
+    offlineCooldownUntil = now + remaining(cdMs);
+    offlineDisarmUntil = now + remaining(dsMs);
+  }
+  isStandalone = true;
+}
+
 void updateNetwork() {
   unsigned long now = millis();
 
   if (WiFi.status() != WL_CONNECTED) {
     udpListening = false;
     if (net == NET_OK || net == NET_DISCOVER) {
+      enterOffline();
       net = NET_LOST;
-      isStandalone = true;
     }
     if (now - lastReconnect > 5000) {
       lastReconnect = now;
@@ -650,6 +1142,12 @@ void updateNetwork() {
 
   checkDiscovery();
 
+  // Server never seen since boot: let the player play instead of waiting
+  if (net == NET_DISCOVER && !haveState && !isStandalone && now > NO_SERVER_PLAY_AFTER_MS) {
+    isStandalone = true;
+    Serial.println("[NET] No server found -> Standalone Mode");
+  }
+
   if (net == NET_DISCOVER || net == NET_LOST) {
     if (now - lastProbe > 2000) {
       lastProbe = now;
@@ -667,8 +1165,8 @@ void updateNetwork() {
       if (sendHeartbeat()) {
         failCount = 0;
       } else if (++failCount >= 3) {
+        enterOffline();
         net = NET_LOST;
-        isStandalone = true;
         Serial.println("[NET] Server lost -> Fallback to Standalone Mode");
       }
     }
@@ -692,12 +1190,16 @@ void setup() {
   }
 
   // IR Subsystem (Receivers enabled on D15, Emitter on D4)
-  irrecv.enableIRIn();
+  irrecv.setTolerance(IR_TIMING_TOLERANCE);
+  irrecv.enableIRIn(true); // Pull-up keeps a broken data wire from floating
   irsend.begin();
+
+  bootNonce = esp_random() >> 1;
 
   // Initialize NVS Preferences & Load Saved Player ID
   prefs.begin("lasertag", false);
   nodeId = prefs.getString("node_id", DEFAULT_NODE_ID);
+  buzzerActive = prefs.getBool("buzzer_active", false);
 
   // Check for Trigger-Hold Player ID Config Mode at Boot
   if (digitalRead(TRIGGER_PIN) == LOW) {
@@ -787,6 +1289,8 @@ void setup() {
     attempts++;
   }
 
+  initEspNow();
+
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println("[WIFI] Connected: " + WiFi.localIP().toString());
     udp.begin(DISCOVERY_PORT);
@@ -813,5 +1317,8 @@ void loop() {
   updateStandalone(); // Standalone respawn and shield timers
   handleTrigger();    // 40ms debounced weapon trigger
   handleIR();         // TSOP1838 vest array reception
+  updateVestHealth(); // Sensor bus & blaster self-checks
+  updateEspNow();     // Restarts the radio link if it failed
+  updateAssist();     // Hidden failsafe when the sensor bus is dead
   updateNetwork();    // Match server sync & auto-discovery
 }

@@ -24,3 +24,10 @@ __pycache__/
 # Teamwork agent scratch directory
 .agents/
 
+
+# Failsafe event log
+server/failsafe.log
+server/referee_key.txt
+server/match_state.json
+server/match_state.json.tmp
+server/buzzers.json

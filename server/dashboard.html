@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Laser Tag Arena - Mark 4</title>
+<title>Laser Tag Arena - Mark FX</title>
 <style>
   :root {
     --bg: #0b0f17; --card: #141a26; --line: #232b3b; --text: #e6ebf5; --mute: #8a94a8;
@@ -44,7 +44,10 @@
   th { color: var(--mute); font-weight: 600; font-size: 12px; text-transform: uppercase; }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   .tag { font-size: 11px; padding: 2px 7px; border-radius: 6px; font-weight: 700; }
-  .t-FRIEND { background: #123828; color: var(--green); } .t-ENEMY { background: #3d1620; color: var(--red); }
+  .t-BLUE { background: #1f2a44; color: var(--blue); } .t-RED { background: #3d1620; color: var(--red); }
+  body:not(.ref) .admin { display: none !important; }
+  .refonly { display: none; } body.ref .refonly { display: table-cell; }
+  .good { color: var(--green); } .fault { color: var(--red); font-weight: 700; } .mini { padding: 4px 8px; font-size: 12px; }
   .t-TRAITOR { background: #3a3415; color: var(--yellow); }
   .feed { max-height: 330px; overflow-y: auto; font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
   .feed div { padding: 5px 0; border-bottom: 1px dashed var(--line); }
@@ -62,7 +65,7 @@
 </head>
 <body>
 <header>
-  <h1>LASER TAG ARENA <span>MARK 4</span></h1>
+  <h1>LASER TAG ARENA <span>MARK FX</span></h1>
   <div class="row">
     <span id="conn" class="mute">connecting...</span>
   </div>
@@ -75,7 +78,7 @@
     <span id="phase" class="phase">-</span>
     <div id="timer" class="timer">--:--</div>
     <div id="banner" class="banner"></div>
-    <div class="row" style="margin-top:12px">
+    <div class="row admin" style="margin-top:12px">
       <button id="bStart" class="go" onclick="ctl('start')">Start Match</button>
       <button id="bPause" class="warn" onclick="ctl('pause')">Pause</button>
       <button id="bResume" class="go" onclick="ctl('resume')">Resume</button>
@@ -84,29 +87,14 @@
     </div>
   </div>
 
-  <!-- PLAYER -->
-  <div class="card">
-    <h2>Player 1</h2>
-    <div id="hearts" class="hearts"></div>
-    <div class="row" style="margin-top:10px">
-      <div class="pill">Lives<b id="lives">-</b></div>
-      <div class="pill">State<b id="pstate">-</b></div>
-      <div class="pill">Hits taken<b id="hits">0</b></div>
-      <div class="pill">Deaths<b id="deaths">0</b></div>
-      <div class="pill">Heals<b id="heals">0</b></div>
-    </div>
-    <p id="pextra" class="mute"></p>
-  </div>
-
-  <!-- NODE -->
-  <div class="card">
-    <h2>Device</h2>
-    <div style="font-size:18px;font-weight:700"><span id="ndot" class="dot off"></span><span id="nstat">OFFLINE</span></div>
-    <div class="row" style="margin-top:10px">
-      <div class="pill">IP<b id="nip">-</b></div>
-      <div class="pill">Wi-Fi signal<b id="nrssi">-</b></div>
-      <div class="pill">Last seen<b id="nseen">-</b></div>
-    </div>
+  <!-- VESTS -->
+  <div class="card span2">
+    <h2>Vests</h2>
+    <table>
+      <thead><tr><th>Vest</th><th>Team</th><th>Link</th><th>HP</th><th class="num">Lives</th><th>State</th>
+        <th class="refonly">Sensors</th><th class="refonly">Blaster</th><th class="refonly">Failsafe</th><th class="refonly">Radio</th><th class="num refonly">Hit/Miss/Not aimed</th><th class="num refonly">Doubles</th><th class="refonly">Buzzer</th><th class="refonly"></th></tr></thead>
+      <tbody id="vests"></tbody>
+    </table>
     <p class="mute" id="srv"></p>
   </div>
 
@@ -127,7 +115,7 @@
   </div>
 
   <!-- SETTINGS -->
-  <div class="card">
+  <div class="card admin">
     <h2>Settings</h2>
     <div class="settings" id="settings"></div>
     <div class="row" style="margin-top:12px">
@@ -140,15 +128,16 @@
   <div class="card">
     <h2>Rules</h2>
     <ul class="rules">
-      <li><b>Enemies 1-5</b>: each hit = -1 HP. +10 pts per hit, +50 per kill.</li>
+      <li><b>Blue P1-P4 vs Red P5-P8</b>: an enemy hit = -1 HP. +10 pts per hit, +50 per kill.</li>
       <li><b>First Blood</b>: first hit of the match gets +25.</li>
       <li><b>Finisher</b>: whoever takes the last life gets +100.</li>
-      <li><b>Friends 1-4 are Medics</b>: their shot heals +1 HP (+5 pts), then a medic cooldown.</li>
+      <li><b>Teammates are Medics</b>: their shot heals +1 HP (+5 pts), then a medic cooldown.</li>
       <li><b>Friendly fire</b>: shooting while your medic is on cooldown = a strike (-10 pts).</li>
-      <li><b>Traitor</b>: too many strikes and that friend defects. Their shots now do damage.</li>
+      <li><b>Traitor</b>: too many strikes and that player defects. Their shots now do damage.</li>
       <li><b>Spawn shield</b>: after respawning, shots are blocked for a few seconds.</li>
+      <li><b>Shooting</b>: one shot per second. After taking a hit, you can't shoot for 10 seconds.</li>
       <li><b>Hit cooldown</b>: after taking damage, enemy shots are ignored briefly.</li>
-      <li>Survive the timer and you win. Lose all lives and the top scorer is MVP.</li>
+      <li>Eliminate the other team, or have more lives left when time runs out.</li>
     </ul>
   </div>
 
@@ -160,25 +149,26 @@
         <th class="num">Deaths</th><th>MVP</th></tr></thead>
       <tbody id="hist"></tbody>
     </table>
-    <div class="row" style="margin-top:10px"><button class="ghost" onclick="if(confirm('Clear history?'))ctl('clear_history')">Clear history</button></div>
+    <div class="row admin" style="margin-top:10px"><button class="ghost" onclick="if(confirm('Clear history?'))ctl('clear_history')">Clear history</button></div>
   </div>
 </div>
 
 <script>
 const LABELS = {
   max_hp: "Max HP", max_lives: "Lives", respawn_s: "Respawn time (s)", protect_s: "Spawn shield (s)",
-  match_s: "Match length (s)", cooldown_s: "Hit cooldown (s)", medic_cooldown_s: "Medic cooldown (s)",
+  match_s: "Match length (s)", cooldown_s: "Hit cooldown (s)", disarm_s: "Can't shoot after a hit (s)", medic_cooldown_s: "Medic cooldown (s)",
   traitor_strikes: "Strikes to turn traitor"
 };
 let settingsBuilt = false, editing = false;
 
+const refereeKey = new URLSearchParams(location.search).get("key") || "";
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const mmss = ms => { const s = Math.ceil(ms / 1000); return String(Math.floor(s/60)).padStart(2,"0") + ":" + String(s%60).padStart(2,"0"); };
 
 async function ctl(action, extra = {}) {
   await fetch("/api/control", { method: "POST", headers: {"Content-Type": "application/json"},
-                                body: JSON.stringify({ action, ...extra }) });
+                                body: JSON.stringify({ action, key: refereeKey, ...extra }) });
   poll();
 }
 
@@ -207,7 +197,7 @@ function render(s) {
   ph.textContent = d.ph; ph.className = "phase ph-" + d.ph;
   $("timer").textContent = d.ph === "COUNTDOWN" ? Math.ceil(d.tm / 1000) : mmss(d.tm);
   $("banner").textContent = d.ph === "GAMEOVER" ? `${d.res}  |  MVP: ${d.mvp}` : "";
-  $("banner").style.color = d.res === "YOU SURVIVED!" ? "var(--green)" : "var(--red)";
+  $("banner").style.color = d.res === "MATCH ENDED" || d.res === "DRAW" ? "var(--yellow)" : "var(--green)";
 
   $("bStart").disabled = !["LOBBY", "GAMEOVER"].includes(d.ph);
   $("bStart").textContent = d.ph === "GAMEOVER" ? "New Match" : "Start Match";
@@ -215,37 +205,36 @@ function render(s) {
   $("bResume").disabled = d.ph !== "PAUSED";
   $("bEnd").disabled = !["LIVE", "PAUSED", "COUNTDOWN"].includes(d.ph);
 
-  $("hearts").innerHTML = "<span class='full'>♥</span>".repeat(d.hp) + "<span class='empty'>♥</span>".repeat(d.mhp - d.hp);
-  $("lives").textContent = `${d.lv} / ${d.mlv}`;
-  $("pstate").textContent = d.st;
-  $("hits").textContent = s.stats.hits_taken;
-  $("deaths").textContent = s.stats.deaths;
-  $("heals").textContent = s.stats.heals;
-  let extra = [];
-  if (d.st === "RESPAWN") extra.push(`Respawning in ${Math.ceil(d.rs / 1000)}s`);
-  if (d.pr > 0) extra.push(`Spawn shield ${Math.ceil(d.pr / 1000)}s`);
-  if (d.cd > 0) extra.push(`Hit cooldown ${Math.ceil(d.cd / 1000)}s`);
-  extra.push(`Last attacker: ${d.last}`);
-  $("pextra").textContent = extra.join("  •  ");
+  document.body.classList.toggle("ref", s.referee);
+  $("vests").innerHTML = s.vests.map(v => {
+    if (!s.referee) return `<tr><td><b>${v.id}</b></td><td><span class="tag t-${v.team}">${v.team}</span></td>
+      <td><span class="dot ${v.online ? "on" : "off"}"></span>${v.rssi != null ? v.rssi + " dBm" : "-"}</td>
+      <td>${v.hp}/${v.mhp}</td><td class="num">${v.lv}/${v.mlv}</td><td>${v.st}</td></tr>`;
+    const health = x => `<span class="${x === "OK" ? "good" : x === "UNKNOWN" ? "mute" : "fault"}">${esc(x)}</span>`;
+    const fs = v.assist_active ? `<span class="fault">ACTIVE</span>` : `<span class="mute">off</span>`;
+    return `<tr><td><b>${v.id}</b></td><td><span class="tag t-${v.team}">${v.team}</span></td>
+      <td><span class="dot ${v.online ? "on" : "off"}"></span>${v.rssi != null ? v.rssi + " dBm" : "-"}</td>
+      <td>${v.hp}/${v.mhp}</td><td class="num">${v.lv}/${v.mlv}</td><td>${v.st}</td>
+      <td class="refonly">${health(v.sensors)}</td><td class="refonly">${health(v.blaster)}</td><td class="refonly">${fs}</td><td class="refonly">${health(v.radio)}</td>
+      <td class="num refonly">${v.assist_hits}/${v.assist_misses}/${v.assist_not_target}</td><td class="num refonly">${v.assist_doubles}</td>
+      <td class="refonly">${["PASSIVE", "ACTIVE"].map(k =>
+        `<button class="mini ${v.buzzer === k ? "go" : "ghost"}" onclick="ctl('buzzer',{vest:'${v.id}',type:'${k}'})">${k[0] + k.slice(1).toLowerCase()}</button>`).join(" ")}
+        <div class="mute">${!v.online ? "gun offline" : !v.buzzer_device ? "old firmware" : v.buzzer && v.buzzer !== v.buzzer_device ? "syncing..." : "gun: " + v.buzzer_device.toLowerCase()}</div></td>
+      <td class="refonly"><button class="mini ${v.assist_manual ? "bad" : "ghost"}" onclick="ctl('assist',{vest:'${v.id}',on:${!v.assist_manual}})">${v.assist_manual ? "Force off" : "Force on"}</button></td></tr>`;
+  }).join("");
 
-  const n = s.node;
-  $("ndot").className = "dot " + (n.online ? "on" : "off");
-  $("nstat").textContent = n.online ? "ONLINE" : "OFFLINE";
-  $("nip").textContent = n.ip || "-";
-  $("nrssi").textContent = n.rssi != null ? `${n.rssi} dBm` : "-";
-  $("nseen").textContent = n.last_seen_s != null ? `${n.last_seen_s}s ago` : "never";
   $("srv").textContent = "Server: " + (s.server_ips.map(ip => `http://${ip}:5050`).join("  ") || "-");
 
   $("board").innerHTML = s.leaderboard.map((r, i) => {
     const team = r.traitor ? "TRAITOR" : r.team;
-    const medic = r.team === "FRIEND" && !r.traitor ? (r.medic_ready_in > 0 ? r.medic_ready_in + "s" : "ready") : "-";
+    const medic = !r.traitor ? (r.medic_ready_in > 0 ? r.medic_ready_in + "s" : "ready") : "-";
     return `<tr><td>${i + 1}</td><td>${esc(r.name)}</td><td><span class="tag t-${team}">${team}</span></td>
       <td class="num">${r.hits}</td><td class="num">${r.kills}</td><td class="num">${r.heals}</td>
       <td class="num">${r.strikes}</td><td class="num">${medic}</td><td class="num"><b>${r.score}</b></td></tr>`;
   }).join("");
 
   $("feed").innerHTML = s.feed.map(e =>
-    `<div class="k-${e.kind}">[${e.t}] <b>${esc(e.src)}</b>: ${esc(e.msg)}</div>`).join("");
+    `<div class="k-${e.kind}">[${e.t}] <b>${esc(e.src)}</b>: ${esc(e.msg + e.note)}</div>`).join("");
 
   $("hist").innerHTML = s.history.length ? s.history.map(h =>
     `<tr><td>${esc(h.ended_at)}</td><td>${esc(h.result)}</td><td class="num">${mmss(h.duration_s * 1000)}</td>
@@ -257,7 +246,7 @@ function render(s) {
 
 async function poll() {
   try {
-    const r = await fetch("/api/state", { cache: "no-store" });
+    const r = await fetch("/api/state?key=" + encodeURIComponent(refereeKey), { cache: "no-store" });
     render(await r.json());
     $("conn").textContent = "live"; $("conn").style.color = "var(--green)";
   } catch (e) {

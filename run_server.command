@@ -23,7 +23,7 @@ echo ""
 echo "Opening dashboard in your web browser..."
 
 # Open web dashboard in default browser (Safari/Chrome)
-(sleep 1.5 && open "http://localhost:5050") &
+(sleep 1.5 && open "http://localhost:5050/?key=$(cat referee_key.txt)") &
 
 # Start the Python Referee Server
 python3 server.py
