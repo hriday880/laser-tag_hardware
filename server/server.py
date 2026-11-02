@@ -39,7 +39,7 @@ MATCH_STATE_FILE = os.path.join(HERE, "match_state.json")
 REFEREE_KEY = None  # Set in main()
 
 # ==========================================
-#      PLAYERS (P1-P4 Blue, P5-P8 Red)
+#      PLAYERS (P1-P4 Blue 1-4, P5-P8 Red 1-4)
 # ==========================================
 SHOOTERS = {
     "0xFF30CF": ("P1", "BLUE"),
@@ -51,6 +51,14 @@ SHOOTERS = {
     "0xFF42BD": ("P7", "RED"),
     "0xFF4AB5": ("P8", "RED"),
 }
+
+# P1-P8 stay the IDs on the wire; people see these names
+GUN_NAMES = {f"P{i}": f"BLUE {i}" for i in range(1, 5)} | {f"P{i + 4}": f"RED {i}" for i in range(1, 5)}
+
+
+def gun_label(text):
+    return re.sub(r"\bP[1-8]\b", lambda m: GUN_NAMES[m.group()], str(text))
+
 
 DEFAULT_SETTINGS = {
     "max_hp": 5,
@@ -87,7 +95,7 @@ COUNTDOWN_S = 3
 
 REFEREE_ONLY_VEST_FIELDS = ("sensors", "blaster", "assist_active", "assist_manual",
                             "assist_hits", "assist_misses", "assist_doubles", "assist_not_target", "radio",
-                            "buzzer", "buzzer_device")
+                            "buzzer", "buzzer_device", "duplicate")
 
 
 def normalize_code(code):
@@ -151,6 +159,8 @@ def save_buzzers(buzzers):
 
 def failsafe_log(event):
     event = {"t": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), **event}
+    if "vest" in event:
+        event["gun"] = gun_label(event["vest"])
     try:
         with open(FAILSAFE_LOG_FILE, "a") as f:
             f.write(json.dumps(event) + "\n")
@@ -206,6 +216,7 @@ class Vest:
         self.buzzer = None  # None (not assigned) | PASSIVE | ACTIVE
         self.buzzer_device = None  # What the gun last reported running
         self.joined = False
+        self.duplicate_until = 0.0  # Two guns recently reported this same ID
         self.new_match(5, 3)
 
     def new_match(self, max_hp, max_lives):
@@ -383,6 +394,7 @@ class Game:
                 return None
             was_online = v.online()
             if was_online and v.ip and v.ip != ip:
+                v.duplicate_until = time.time() + 15
                 self.log(v.id, f"DUPLICATE ID? {v.id} heard from {v.ip} and {ip}", "bad", referee_only=True)
                 failsafe_log({"vest": v.id, "event": "DUPLICATE_ID", "ips": [v.ip, ip]})
             v.ip = ip
@@ -778,7 +790,7 @@ class Game:
         for v in self.vests.values():
             d = self.device_state(v.id)
             rows.append({
-                "id": v.id, "team": v.team, "online": v.online(), "joined": v.joined,
+                "id": v.id, "name": GUN_NAMES[v.id], "team": v.team, "online": v.online(), "joined": v.joined,
                 "ip": v.ip, "rssi": v.rssi,
                 "last_seen_s": round(time.time() - v.last_seen, 1) if v.last_seen else None,
                 "hp": d["hp"], "mhp": d["mhp"], "lv": d["lv"], "mlv": d["mlv"], "st": d["st"],
@@ -789,6 +801,7 @@ class Game:
                 "assist_doubles": v.assist_doubles, "assist_not_target": v.assist_not_target,
                 "radio": v.radio,
                 "buzzer": v.buzzer, "buzzer_device": v.buzzer_device,
+                "duplicate": time.time() < v.duplicate_until,
             })
         return rows
 
@@ -829,6 +842,17 @@ class Game:
             }
 
 
+def named_state(st):
+    """Swaps P1-P8 for gun names in everything people read. Vest ids stay for control calls."""
+    st["device"]["mvp"] = gun_label(st["device"]["mvp"])
+    for row in st["leaderboard"]:
+        row["name"] = gun_label(row["name"])
+    st["feed"] = [{**e, "src": gun_label(e["src"]), "msg": gun_label(e["msg"]), "note": gun_label(e["note"])}
+                  for e in st["feed"]]
+    st["history"] = [{**h, "mvp": gun_label(h["mvp"])} for h in st["history"]]
+    return st
+
+
 game = Game()
 
 
@@ -857,7 +881,7 @@ def discovery_broadcaster():
 #          TERMINAL DASHBOARD
 # ==========================================
 def render_terminal():
-    st = game.full_state()
+    st = named_state(game.full_state())
     d = st["device"]
     secs = d["tm"] // 1000
     ips = st["server_ips"]
@@ -874,7 +898,7 @@ def render_terminal():
             continue
         hearts = "█" * v["hp"] + "░" * max(0, v["mhp"] - v["hp"])
         link = "ON " if v["online"] else "OFF"
-        lines.append(f" {v['id']} {v['team']:<4} {link} [{hearts}] L{v['lv']} {v['st']}")
+        lines.append(f" {v['name']:<7} {link} [{hearts}] L{v['lv']} {v['st']}")
     lines.append("------------------------------------------------------------------")
     lines.append(" EVENT LOG:")
     for e in st["feed"][:8]:
@@ -940,7 +964,7 @@ class Handler(BaseHTTPRequestHandler):
             except OSError:
                 self._send(500, "<h1>dashboard.html missing</h1>", "text/html")
         elif path == "/api/state":
-            self._send(200, game.full_state(self._is_referee()))
+            self._send(200, named_state(game.full_state(self._is_referee())))
         elif path == "/status":  # Mark 3 compatibility
             d = game.device_state()
             self._send(200, {"current_hp": d["hp"], "is_eliminated": d["st"] == "OUT"})

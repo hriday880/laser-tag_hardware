@@ -6,152 +6,210 @@
 <title>Laser Tag Arena - Mark FX</title>
 <style>
   :root {
-    --bg: #0b0f17; --card: #141a26; --line: #232b3b; --text: #e6ebf5; --mute: #8a94a8;
+    --bg: #0a0d14; --card: #131925; --card2: #1a2130; --line: #273044; --text: #eef2fa; --mute: #93a0b8;
     --green: #2ee59d; --yellow: #ffd23f; --red: #ff4d6d; --blue: #4da3ff; --purple: #b57bff;
   }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
          background: var(--bg); color: var(--text); }
-  header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
-           padding: 14px 20px; border-bottom: 1px solid var(--line); }
-  header h1 { font-size: 18px; margin: 0; letter-spacing: .5px; }
-  header h1 span { color: var(--red); }
-  .wrap { max-width: 1200px; margin: 0 auto; padding: 16px; display: grid; gap: 16px;
-          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
-  .card h2 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--mute); }
-  .span2 { grid-column: span 2; }
-  @media (max-width: 700px) { .span2 { grid-column: span 1; } }
-  .phase { display: inline-block; padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+           padding: 12px 20px; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 16px; margin: 0; letter-spacing: 1px; }
+  header h1 span { color: var(--mute); font-weight: 500; }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; min-width: 0; }
+  .card h2 { margin: 0 0 12px; font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--mute); }
+  .mute { color: var(--mute); font-size: 13px; }
+  .good { color: var(--green); } .fault { color: var(--red); font-weight: 700; } .warn { color: var(--yellow); }
+
+  /* Scoreboard */
+  .hero { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; }
+  .side { padding: 6px 12px; }
+  .side.r { text-align: right; }
+  .side .label { font-size: 18px; font-weight: 800; letter-spacing: 2px; }
+  .side.b .label { color: var(--blue); } .side.r .label { color: var(--red); }
+  .side .score { font-size: 64px; line-height: 1.05; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .centre { text-align: center; min-width: 240px; }
+  .phase { display: inline-block; padding: 4px 14px; border-radius: 999px; font-weight: 700; font-size: 13px; }
   .ph-LOBBY { background: #1f2a44; color: var(--blue); }
   .ph-COUNTDOWN { background: #3a3415; color: var(--yellow); }
   .ph-LIVE { background: #123828; color: var(--green); }
   .ph-PAUSED { background: #2c1f44; color: var(--purple); }
   .ph-GAMEOVER { background: #3d1620; color: var(--red); }
-  .timer { font-size: 64px; font-weight: 800; font-variant-numeric: tabular-nums; margin: 6px 0; }
-  .hearts { font-size: 34px; letter-spacing: 4px; }
-  .hearts .full { color: var(--red); } .hearts .empty { color: #3a4255; }
-  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-  .pill { background: #1b2232; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: 14px; }
-  .pill b { font-size: 18px; display: block; }
-  button { cursor: pointer; border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 700; font-size: 14px;
-           color: #0b0f17; background: var(--text); }
-  button.go { background: var(--green); } button.warn { background: var(--yellow); }
-  button.bad { background: var(--red); color: #fff; } button.ghost { background: #232b3b; color: var(--text); }
+  .timer { font-size: 84px; line-height: 1.1; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .timer.low { color: var(--red); }
+  .banner { font-size: 24px; font-weight: 800; color: var(--green); }
+  .banner:empty { display: none; }
+
+  /* Referee controls */
+  .ctl { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  button { cursor: pointer; border: 0; border-radius: 10px; padding: 11px 18px; font-weight: 700; font-size: 14px;
+           color: #0a0d14; background: var(--text); }
+  button.go { background: var(--green); } button.amber { background: var(--yellow); }
+  button.bad { background: var(--red); color: #fff; } button.ghost { background: #273044; color: var(--text); }
+  button.mini { padding: 5px 9px; font-size: 12px; border-radius: 7px; }
   button:disabled { opacity: .35; cursor: not-allowed; }
+  .spacer { flex: 1; }
+  .ready { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--card2); font-size: 14px; }
+  .ready b { font-size: 15px; }
+  .ready ul { margin: 6px 0 0; padding-left: 18px; }
+  body:not(.ref) .admin { display: none !important; }
+
+  /* Teams */
+  .teams { display: grid; gap: 16px; grid-template-columns: 1fr 1fr; }
+  .team.blue { border-top: 3px solid var(--blue); } .team.red { border-top: 3px solid var(--red); }
+  .players { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+  .player { background: var(--card2); border-radius: 10px; padding: 12px; }
+  .player.gone { opacity: .45; }
+  .player.out { opacity: .6; }
+  .player .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .player .name { font-size: 17px; font-weight: 800; }
+  .player .pts { font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums; }
+  .pips { display: flex; gap: 3px; margin: 9px 0 7px; }
+  .pips i { flex: 1; height: 9px; border-radius: 3px; background: #333c50; }
+  .blue .pips i.f { background: var(--blue); } .red .pips i.f { background: var(--red); }
+  .player .sub { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--mute); }
+  .state-OUT { color: var(--red); font-weight: 700; } .state-RESPAWN { color: var(--yellow); font-weight: 700; }
+  .state-SHIELD { color: var(--purple); font-weight: 700; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .on { background: var(--green); } .off { background: var(--red); }
+
+  /* Tables */
+  .scroll { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th, td { padding: 7px 6px; text-align: left; border-bottom: 1px solid var(--line); }
-  th { color: var(--mute); font-weight: 600; font-size: 12px; text-transform: uppercase; }
+  th, td { padding: 8px 7px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--mute); font-weight: 600; font-size: 11px; text-transform: uppercase; }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.bad-row td { background: rgba(255, 77, 109, .09); }
   .tag { font-size: 11px; padding: 2px 7px; border-radius: 6px; font-weight: 700; }
   .t-BLUE { background: #1f2a44; color: var(--blue); } .t-RED { background: #3d1620; color: var(--red); }
-  body:not(.ref) .admin { display: none !important; }
-  .refonly { display: none; } body.ref .refonly { display: table-cell; }
-  .good { color: var(--green); } .fault { color: var(--red); font-weight: 700; } .mini { padding: 4px 8px; font-size: 12px; }
   .t-TRAITOR { background: #3a3415; color: var(--yellow); }
-  .feed { max-height: 330px; overflow-y: auto; font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+
+  .two { display: grid; gap: 16px; grid-template-columns: 3fr 2fr; }
+  .feed { max-height: 340px; overflow-y: auto; font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
   .feed div { padding: 5px 0; border-bottom: 1px dashed var(--line); }
   .k-bad { color: #ff8fa3; } .k-good { color: var(--green); } .k-warn { color: var(--yellow); }
   .k-system { color: var(--blue); } .k-dim { color: var(--mute); }
-  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-  .on { background: var(--green); box-shadow: 0 0 8px var(--green); } .off { background: var(--red); }
   .settings { display: grid; grid-template-columns: 1fr 90px; gap: 8px 10px; align-items: center; font-size: 14px; }
   .settings input { width: 100%; background: #0f1420; color: var(--text); border: 1px solid var(--line);
                     border-radius: 8px; padding: 6px 8px; font-size: 14px; }
+  details summary { cursor: pointer; font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--mute); }
+  details[open] summary { margin-bottom: 12px; }
+  .rules { margin: 0; padding-left: 18px; }
   .rules li { margin-bottom: 6px; font-size: 14px; color: #c9d1e2; }
-  .mute { color: var(--mute); font-size: 13px; }
-  .banner { font-size: 22px; font-weight: 800; margin-top: 8px; }
+  #toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--red); color: #fff;
+           padding: 10px 16px; border-radius: 10px; font-weight: 700; display: none; max-width: calc(100vw - 32px); }
+
+  @media (max-width: 900px) {
+    .teams, .two { grid-template-columns: 1fr; }
+    .timer { font-size: 60px; } .side .score { font-size: 40px; } .centre { min-width: 0; }
+    .hero { grid-template-columns: 1fr 1fr; }
+    .centre { grid-column: 1 / -1; grid-row: 1; }
+  }
+  @media (max-width: 420px) { .players { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 <header>
   <h1>LASER TAG ARENA <span>MARK FX</span></h1>
-  <div class="row">
-    <span id="conn" class="mute">connecting...</span>
-  </div>
+  <span id="conn" class="mute">connecting...</span>
 </header>
 
 <div class="wrap">
-  <!-- MATCH -->
-  <div class="card">
-    <h2>Match</h2>
-    <span id="phase" class="phase">-</span>
-    <div id="timer" class="timer">--:--</div>
-    <div id="banner" class="banner"></div>
-    <div class="row admin" style="margin-top:12px">
-      <button id="bStart" class="go" onclick="ctl('start')">Start Match</button>
-      <button id="bPause" class="warn" onclick="ctl('pause')">Pause</button>
-      <button id="bResume" class="go" onclick="ctl('resume')">Resume</button>
-      <button id="bEnd" class="ghost" onclick="ctl('end')">End</button>
-      <button class="bad" onclick="if(confirm('Reset arena?'))ctl('reset')">Reset</button>
+  <div class="card hero">
+    <div class="side b"><div class="label">BLUE</div><div class="score" id="blueScore">0</div><div class="mute" id="blueLives"></div></div>
+    <div class="centre">
+      <span id="phase" class="phase">-</span>
+      <div id="timer" class="timer">--:--</div>
+      <div id="banner" class="banner"></div>
     </div>
+    <div class="side r"><div class="label">RED</div><div class="score" id="redScore">0</div><div class="mute" id="redLives"></div></div>
   </div>
 
-  <!-- VESTS -->
-  <div class="card span2">
-    <h2>Vests</h2>
-    <table>
-      <thead><tr><th>Vest</th><th>Team</th><th>Link</th><th>HP</th><th class="num">Lives</th><th>State</th>
-        <th class="refonly">Sensors</th><th class="refonly">Blaster</th><th class="refonly">Failsafe</th><th class="refonly">Radio</th><th class="num refonly">Hit/Miss/Not aimed</th><th class="num refonly">Doubles</th><th class="refonly">Buzzer</th><th class="refonly"></th></tr></thead>
-      <tbody id="vests"></tbody>
-    </table>
+  <div class="card admin">
+    <div class="ctl">
+      <button id="bStart" class="go" onclick="startMatch()">Start Match</button>
+      <button id="bPause" class="amber" onclick="ctl('pause')">Pause</button>
+      <button id="bResume" class="go" onclick="ctl('resume')">Resume</button>
+      <button id="bEnd" class="ghost" onclick="if(confirm('End this match now?'))ctl('end')">End</button>
+      <span class="spacer"></span>
+      <button class="bad" onclick="if(confirm('Reset the arena? This clears the current match.'))ctl('reset')">Reset</button>
+    </div>
+    <div class="ready" id="ready"></div>
+  </div>
+
+  <div class="teams">
+    <div class="card team blue"><h2>Blue team</h2><div class="players" id="teamBLUE"></div></div>
+    <div class="card team red"><h2>Red team</h2><div class="players" id="teamRED"></div></div>
+  </div>
+
+  <div class="card admin">
+    <h2>Gun health</h2>
+    <div class="scroll" id="healthWrap"><table>
+      <thead><tr><th>Gun</th><th>Link</th><th>IP</th><th>Sensors</th><th>Blaster</th><th>Failsafe</th><th>Radio</th>
+        <th class="num">Hit/Miss/Not aimed</th><th class="num">Doubles</th><th>Buzzer</th><th></th></tr></thead>
+      <tbody id="health"></tbody>
+    </table></div>
     <p class="mute" id="srv"></p>
   </div>
 
-  <!-- LEADERBOARD -->
-  <div class="card span2">
-    <h2>Leaderboard</h2>
-    <table>
-      <thead><tr><th>#</th><th>Shooter</th><th>Team</th><th class="num">Hits</th><th class="num">Kills</th>
-        <th class="num">Heals</th><th class="num">Strikes</th><th class="num">Medic</th><th class="num">Score</th></tr></thead>
-      <tbody id="board"></tbody>
-    </table>
-  </div>
-
-  <!-- FEED -->
-  <div class="card">
-    <h2>Event feed</h2>
-    <div id="feed" class="feed"></div>
-  </div>
-
-  <!-- SETTINGS -->
-  <div class="card admin">
-    <h2>Settings</h2>
-    <div class="settings" id="settings"></div>
-    <div class="row" style="margin-top:12px">
-      <button class="go" onclick="saveSettings()">Save settings</button>
-      <span class="mute">HP and lives apply at the next reset.</span>
+  <div class="two">
+    <div class="card">
+      <h2>Leaderboard</h2>
+      <div class="scroll"><table>
+        <thead><tr><th>#</th><th>Gun</th><th class="num">Hits</th><th class="num">Kills</th>
+          <th class="num">Heals</th><th class="num">Strikes</th><th class="num">Medic</th><th class="num">Score</th></tr></thead>
+        <tbody id="board"></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <h2>Event feed</h2>
+      <div id="feed" class="feed"></div>
     </div>
   </div>
 
-  <!-- RULES -->
-  <div class="card">
-    <h2>Rules</h2>
-    <ul class="rules">
-      <li><b>Blue P1-P4 vs Red P5-P8</b>: an enemy hit = -1 HP. +10 pts per hit, +50 per kill.</li>
-      <li><b>First Blood</b>: first hit of the match gets +25.</li>
-      <li><b>Finisher</b>: whoever takes the last life gets +100.</li>
-      <li><b>Teammates are Medics</b>: their shot heals +1 HP (+5 pts), then a medic cooldown.</li>
-      <li><b>Friendly fire</b>: shooting while your medic is on cooldown = a strike (-10 pts).</li>
-      <li><b>Traitor</b>: too many strikes and that player defects. Their shots now do damage.</li>
-      <li><b>Spawn shield</b>: after respawning, shots are blocked for a few seconds.</li>
-      <li><b>Shooting</b>: one shot per second. After taking a hit, you can't shoot for 10 seconds.</li>
-      <li><b>Hit cooldown</b>: after taking damage, enemy shots are ignored briefly.</li>
-      <li>Eliminate the other team, or have more lives left when time runs out.</li>
-    </ul>
+  <div class="card admin">
+    <details>
+      <summary>Settings</summary>
+      <div class="settings" id="settings"></div>
+      <div class="ctl" style="margin-top:12px">
+        <button class="go" onclick="saveSettings()">Save settings</button>
+        <span class="mute">HP and lives apply at the next reset.</span>
+      </div>
+    </details>
   </div>
 
-  <!-- HISTORY -->
-  <div class="card span2">
-    <h2>Match history</h2>
-    <table>
-      <thead><tr><th>Ended</th><th>Result</th><th class="num">Length</th><th class="num">Hits</th>
-        <th class="num">Deaths</th><th>MVP</th></tr></thead>
-      <tbody id="hist"></tbody>
-    </table>
-    <div class="row admin" style="margin-top:10px"><button class="ghost" onclick="if(confirm('Clear history?'))ctl('clear_history')">Clear history</button></div>
+  <div class="card">
+    <details>
+      <summary>Rules</summary>
+      <ul class="rules">
+        <li><b>Blue 1-4 vs Red 1-4</b>: an enemy hit = -1 HP. +10 pts per hit, +50 per kill.</li>
+        <li><b>First Blood</b>: first hit of the match gets +25.</li>
+        <li><b>Finisher</b>: whoever takes the last life gets +100.</li>
+        <li><b>Teammates are Medics</b>: their shot heals +1 HP (+5 pts), then a medic cooldown.</li>
+        <li><b>Friendly fire</b>: shooting while your medic is on cooldown = a strike (-10 pts).</li>
+        <li><b>Traitor</b>: too many strikes and that player defects. Their shots now do damage.</li>
+        <li><b>Spawn shield</b>: after respawning, shots are blocked for a few seconds.</li>
+        <li><b>Shooting</b>: one shot per second. After taking a hit, you can't shoot for 10 seconds.</li>
+        <li><b>Hit cooldown</b>: after taking damage, enemy shots are ignored briefly.</li>
+        <li>Eliminate the other team, or have more lives left when time runs out.</li>
+      </ul>
+    </details>
+  </div>
+
+  <div class="card">
+    <details>
+      <summary>Match history</summary>
+      <div class="scroll"><table>
+        <thead><tr><th>Ended</th><th>Result</th><th class="num">Length</th><th class="num">Hits</th>
+          <th class="num">Deaths</th><th>MVP</th></tr></thead>
+        <tbody id="hist"></tbody>
+      </table></div>
+      <div class="ctl admin" style="margin-top:10px"><button class="ghost" onclick="if(confirm('Clear history?'))ctl('clear_history')">Clear history</button></div>
+    </details>
   </div>
 </div>
+<div id="toast"></div>
 
 <script>
 const LABELS = {
@@ -159,17 +217,45 @@ const LABELS = {
   match_s: "Match length (s)", cooldown_s: "Hit cooldown (s)", disarm_s: "Can't shoot after a hit (s)", medic_cooldown_s: "Medic cooldown (s)",
   traitor_strikes: "Strikes to turn traitor"
 };
-let settingsBuilt = false, editing = false;
+let settingsBuilt = false, editing = false, pressing = false, problems = [];
 
 const refereeKey = new URLSearchParams(location.search).get("key") || "";
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const mmss = ms => { const s = Math.ceil(ms / 1000); return String(Math.floor(s/60)).padStart(2,"0") + ":" + String(s%60).padStart(2,"0"); };
 
+// Polling must not swap a button out from under a click in progress
+document.addEventListener("pointerdown", () => pressing = true);
+document.addEventListener("pointerup", () => setTimeout(() => pressing = false, 50));
+document.addEventListener("pointercancel", () => pressing = false);
+function setHTML(el, html) {
+  if (pressing || el.dataset.html === html) return;
+  el.dataset.html = html;
+  el.innerHTML = html;
+}
+
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg; t.style.display = "block";
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => t.style.display = "none", 4000);
+}
+
 async function ctl(action, extra = {}) {
-  await fetch("/api/control", { method: "POST", headers: {"Content-Type": "application/json"},
-                                body: JSON.stringify({ action, key: refereeKey, ...extra }) });
+  try {
+    const r = await fetch("/api/control", { method: "POST", headers: {"Content-Type": "application/json"},
+                                            body: JSON.stringify({ action, key: refereeKey, ...extra }) });
+    const res = await r.json().catch(() => ({}));
+    if (!r.ok || res.ok === false) toast(`"${action}" was not accepted`);
+  } catch (e) {
+    toast("Server unreachable: command not sent");
+  }
   poll();
+}
+
+function startMatch() {
+  if (problems.length && !confirm("Not everything is ready:\n\n" + problems.join("\n") + "\n\nStart anyway?")) return;
+  ctl("start");
 }
 
 function saveSettings() {
@@ -191,11 +277,54 @@ function buildSettings(st, lim) {
   settingsBuilt = true;
 }
 
+function playerCard(v, stat) {
+  let state = v.st, cls = v.st;
+  if (v.st === "RESPAWN") state = "Respawn " + Math.ceil(v.rs / 1000) + "s";
+  else if (v.st === "ALIVE" && v.pr > 0) { state = "Shield " + Math.ceil(v.pr / 1000) + "s"; cls = "SHIELD"; }
+  else if (v.st === "ALIVE") state = "Alive";
+  else if (v.st === "OUT") state = "Out";
+  const pips = Array.from({length: v.mhp}, (_, i) => `<i class="${i < v.hp ? "f" : ""}"></i>`).join("");
+  return `<div class="player ${v.online ? "" : "gone"} ${v.st === "OUT" ? "out" : ""}">
+    <div class="top"><span class="name">${esc(v.name)}</span><span class="pts">${stat ? stat.score : 0}</span></div>
+    <div class="pips">${pips}</div>
+    <div class="sub"><span><span class="dot ${v.online ? "on" : "off"}"></span>${v.online ? "Lives " + v.lv + "/" + v.mlv : "Not connected"}</span>
+      <span class="state-${cls}">${state}</span></div></div>`;
+}
+
+function healthProblems(s) {
+  const out = [];
+  for (const v of s.vests) {
+    if (v.duplicate) out.push(`${v.name}: two guns are using this ID. Reflash one of them`);
+    if (!v.online) { out.push(`${v.name}: not connected`); continue; }
+    if (v.sensors !== "OK") out.push(`${v.name}: sensors ${v.sensors}`);
+    if (v.blaster !== "OK") out.push(`${v.name}: blaster ${v.blaster}`);
+    if (v.radio === "FAILED") out.push(`${v.name}: failsafe radio failed`);
+    if (!v.buzzer) out.push(`${v.name}: buzzer type not assigned`);
+  }
+  return out;
+}
+
+function healthRow(v) {
+  const health = x => `<span class="${x === "OK" ? "good" : x === "UNKNOWN" ? "mute" : "fault"}">${esc(x)}</span>`;
+  const fs = v.assist_active ? `<span class="fault">ACTIVE</span>` : `<span class="mute">off</span>`;
+  const bad = v.duplicate || (v.online && (["STUCK_LOW", "OPEN"].includes(v.sensors) || v.blaster === "OPEN" || v.radio === "FAILED"));
+  return `<tr class="${bad ? "bad-row" : ""}"><td><b>${esc(v.name)}</b>${v.duplicate ? ` <span class="fault">DUPLICATE</span>` : ""}</td>
+    <td><span class="dot ${v.online ? "on" : "off"}"></span>${v.rssi != null ? v.rssi + " dBm" : "-"}</td>
+    <td class="mute">${esc(v.ip || "-")}</td>
+    <td>${health(v.sensors)}</td><td>${health(v.blaster)}</td><td>${fs}</td><td>${health(v.radio)}</td>
+    <td class="num">${v.assist_hits}/${v.assist_misses}/${v.assist_not_target}</td><td class="num">${v.assist_doubles}</td>
+    <td>${["PASSIVE", "ACTIVE"].map(k =>
+      `<button class="mini ${v.buzzer === k ? "go" : "ghost"}" onclick="ctl('buzzer',{vest:'${v.id}',type:'${k}'})">${k[0] + k.slice(1).toLowerCase()}</button>`).join(" ")}
+      <span class="mute">${!v.online ? "" : !v.buzzer_device ? "old firmware" : v.buzzer && v.buzzer !== v.buzzer_device ? "syncing..." : ""}</span></td>
+    <td><button class="mini ${v.assist_manual ? "bad" : "ghost"}" onclick="ctl('assist',{vest:'${v.id}',on:${!v.assist_manual}})">${v.assist_manual ? "Force off" : "Force on"}</button></td></tr>`;
+}
+
 function render(s) {
   const d = s.device;
   const ph = $("phase");
   ph.textContent = d.ph; ph.className = "phase ph-" + d.ph;
   $("timer").textContent = d.ph === "COUNTDOWN" ? Math.ceil(d.tm / 1000) : mmss(d.tm);
+  $("timer").classList.toggle("low", d.ph === "LIVE" && d.tm < 30000);
   $("banner").textContent = d.ph === "GAMEOVER" ? `${d.res}  |  MVP: ${d.mvp}` : "";
   $("banner").style.color = d.res === "MATCH ENDED" || d.res === "DRAW" ? "var(--yellow)" : "var(--green)";
 
@@ -206,40 +335,43 @@ function render(s) {
   $("bEnd").disabled = !["LIVE", "PAUSED", "COUNTDOWN"].includes(d.ph);
 
   document.body.classList.toggle("ref", s.referee);
-  $("vests").innerHTML = s.vests.map(v => {
-    if (!s.referee) return `<tr><td><b>${v.id}</b></td><td><span class="tag t-${v.team}">${v.team}</span></td>
-      <td><span class="dot ${v.online ? "on" : "off"}"></span>${v.rssi != null ? v.rssi + " dBm" : "-"}</td>
-      <td>${v.hp}/${v.mhp}</td><td class="num">${v.lv}/${v.mlv}</td><td>${v.st}</td></tr>`;
-    const health = x => `<span class="${x === "OK" ? "good" : x === "UNKNOWN" ? "mute" : "fault"}">${esc(x)}</span>`;
-    const fs = v.assist_active ? `<span class="fault">ACTIVE</span>` : `<span class="mute">off</span>`;
-    return `<tr><td><b>${v.id}</b></td><td><span class="tag t-${v.team}">${v.team}</span></td>
-      <td><span class="dot ${v.online ? "on" : "off"}"></span>${v.rssi != null ? v.rssi + " dBm" : "-"}</td>
-      <td>${v.hp}/${v.mhp}</td><td class="num">${v.lv}/${v.mlv}</td><td>${v.st}</td>
-      <td class="refonly">${health(v.sensors)}</td><td class="refonly">${health(v.blaster)}</td><td class="refonly">${fs}</td><td class="refonly">${health(v.radio)}</td>
-      <td class="num refonly">${v.assist_hits}/${v.assist_misses}/${v.assist_not_target}</td><td class="num refonly">${v.assist_doubles}</td>
-      <td class="refonly">${["PASSIVE", "ACTIVE"].map(k =>
-        `<button class="mini ${v.buzzer === k ? "go" : "ghost"}" onclick="ctl('buzzer',{vest:'${v.id}',type:'${k}'})">${k[0] + k.slice(1).toLowerCase()}</button>`).join(" ")}
-        <div class="mute">${!v.online ? "gun offline" : !v.buzzer_device ? "old firmware" : v.buzzer && v.buzzer !== v.buzzer_device ? "syncing..." : "gun: " + v.buzzer_device.toLowerCase()}</div></td>
-      <td class="refonly"><button class="mini ${v.assist_manual ? "bad" : "ghost"}" onclick="ctl('assist',{vest:'${v.id}',on:${!v.assist_manual}})">${v.assist_manual ? "Force off" : "Force on"}</button></td></tr>`;
-  }).join("");
 
-  $("srv").textContent = "Server: " + (s.server_ips.map(ip => `http://${ip}:5050`).join("  ") || "-");
+  const stats = Object.fromEntries(s.leaderboard.map(r => [r.name, r]));
+  for (const team of ["BLUE", "RED"]) {
+    const vests = s.vests.filter(v => v.team === team);
+    setHTML($("team" + team), vests.map(v => playerCard(v, stats[v.name])).join(""));
+    const key = team.toLowerCase();
+    $(key + "Score").textContent = s.leaderboard.filter(r => r.team === team).reduce((a, r) => a + r.score, 0);
+    const joined = vests.filter(v => v.joined);
+    $(key + "Lives").textContent = joined.length ? joined.reduce((a, v) => a + v.lv, 0) + " lives left" : "No guns connected";
+  }
 
-  $("board").innerHTML = s.leaderboard.map((r, i) => {
+  if (s.referee) {
+    problems = healthProblems(s);
+    const online = s.vests.filter(v => v.online).length;
+    setHTML($("ready"), problems.length
+      ? `<b class="warn">${online}/${s.vests.length} guns connected</b>, ${problems.length} to check
+         <ul>${problems.map(p => `<li>${esc(p)}</li>`).join("")}</ul>`
+      : `<b class="good">All ${s.vests.length} guns connected and healthy. Ready to start.</b>`);
+    setHTML($("health"), s.vests.map(healthRow).join(""));
+    $("srv").textContent = "Server: " + (s.server_ips.map(ip => `http://${ip}:5050`).join("  ") || "-");
+  }
+
+  setHTML($("board"), s.leaderboard.map((r, i) => {
     const team = r.traitor ? "TRAITOR" : r.team;
-    const medic = !r.traitor ? (r.medic_ready_in > 0 ? r.medic_ready_in + "s" : "ready") : "-";
-    return `<tr><td>${i + 1}</td><td>${esc(r.name)}</td><td><span class="tag t-${team}">${team}</span></td>
+    const medic = !r.traitor ? (r.medic_ready_in > 0 ? Math.ceil(r.medic_ready_in) + "s" : "ready") : "-";
+    return `<tr><td>${i + 1}</td><td><span class="tag t-${team}">${esc(r.name)}${r.traitor ? " (TRAITOR)" : ""}</span></td>
       <td class="num">${r.hits}</td><td class="num">${r.kills}</td><td class="num">${r.heals}</td>
       <td class="num">${r.strikes}</td><td class="num">${medic}</td><td class="num"><b>${r.score}</b></td></tr>`;
-  }).join("");
+  }).join(""));
 
-  $("feed").innerHTML = s.feed.map(e =>
-    `<div class="k-${e.kind}">[${e.t}] <b>${esc(e.src)}</b>: ${esc(e.msg + e.note)}</div>`).join("");
+  setHTML($("feed"), s.feed.map(e =>
+    `<div class="k-${e.kind}">[${e.t}] <b>${esc(e.src)}</b>: ${esc(e.msg + e.note)}</div>`).join(""));
 
-  $("hist").innerHTML = s.history.length ? s.history.map(h =>
+  setHTML($("hist"), s.history.length ? s.history.map(h =>
     `<tr><td>${esc(h.ended_at)}</td><td>${esc(h.result)}</td><td class="num">${mmss(h.duration_s * 1000)}</td>
      <td class="num">${h.hits_taken}</td><td class="num">${h.deaths}</td><td>${esc(h.mvp)}</td></tr>`).join("")
-    : `<tr><td colspan="6" class="mute">No matches yet.</td></tr>`;
+    : `<tr><td colspan="6" class="mute">No matches yet.</td></tr>`);
 
   if (!settingsBuilt || !editing) buildSettings(s.settings, s.limits);
 }

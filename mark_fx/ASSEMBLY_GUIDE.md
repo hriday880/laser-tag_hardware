@@ -356,20 +356,13 @@ All 5 sensors operate on a **Parallel Wired-OR Bus**. An active hit detected by 
 Each of the 8 physical ESP32 boards requires flashing with `mark_fx/mark_fx.ino` configured with its unique player identity:
 
 1. Open `mark_fx/mark_fx.ino` in Arduino IDE or compile via CLI.
-2. Locate the Player ID configuration line near the top:
+2. Locate the gun configuration line near the top:
    ```cpp
-   #define NODE_ID "P1"  // Change to "P1" through "P8" for each physical unit
+   #define GUN BLUE1
    ```
-3. Set the target `#define NODE_ID` according to the table:
-   - Unit 1: `#define NODE_ID "P1"`
-   - Unit 2: `#define NODE_ID "P2"`
-   - Unit 3: `#define NODE_ID "P3"`
-   - Unit 4: `#define NODE_ID "P4"`
-   - Unit 5: `#define NODE_ID "P5"`
-   - Unit 6: `#define NODE_ID "P6"`
-   - Unit 7: `#define NODE_ID "P7"`
-   - Unit 8: `#define NODE_ID "P8"`
-4. Verify standard Arduino ESP32 board settings:
+3. Change it for each physical gun to one of `BLUE1` `BLUE2` `BLUE3` `BLUE4` `RED1` `RED2` `RED3` `RED4`. A misspelled name stops the compile.
+4. After upload, LEDs 1-4 show the gun number for 1.5 s at boot. LED 5 also lights on Red guns.
+5. Verify standard Arduino ESP32 board settings:
    - **Board:** `DOIT ESP32 DEVKIT V1`
    - **CPU Frequency:** `240MHz (WiFi/BT)`
    - **Flash Frequency:** `80MHz`

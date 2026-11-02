@@ -38,12 +38,23 @@ struct ShotEvent { bool witness; bool claimed; uint8_t reporter; uint8_t shooter
 // ==========================================
 //          PLAYER NODE CONFIGURATION
 // ==========================================
-// Default fallback player ID if not set via boot trigger config
-#ifndef DEFAULT_NODE_ID
-#define DEFAULT_NODE_ID "P1"
+// >>> CHANGE THIS LINE FOR EACH GUN BEFORE FLASHING <<<
+// Use one of: BLUE1 BLUE2 BLUE3 BLUE4 RED1 RED2 RED3 RED4
+#ifndef GUN
+#define GUN BLUE1
 #endif
 
-String nodeId = DEFAULT_NODE_ID;
+// Names map to the IDs used by the server and IR codes
+#define BLUE1 "P1"
+#define BLUE2 "P2"
+#define BLUE3 "P3"
+#define BLUE4 "P4"
+#define RED1  "P5"
+#define RED2  "P6"
+#define RED3  "P7"
+#define RED4  "P8"
+
+String nodeId = GUN;
 
 // Wi-Fi credentials
 const char* ssid = "Hriday";
@@ -314,13 +325,9 @@ void setHUD(bool l1, bool l2, bool l3, bool l4, bool l5) {
 }
 
 void displayPlayerHUD(int p) {
-  if (p <= 5) {
-    setHUD(p >= 1, p >= 2, p >= 3, p >= 4, p >= 5);
-  } else {
-    // For 6, 7, 8: LED 5 stays lit as base 5, LEDs 1..3 indicate +1, +2, +3
-    int extra = p - 5;
-    setHUD(extra >= 1, extra >= 2, extra >= 3, false, true);
-  }
+  // LEDs 1-4 count the gun number; LED 5 on means Red team
+  int n = (p - 1) % 4 + 1;
+  setHUD(n >= 1, n >= 2, n >= 3, n >= 4, p > 4);
 }
 
 void updateHUD() {
@@ -1196,64 +1203,11 @@ void setup() {
 
   bootNonce = esp_random() >> 1;
 
-  // Initialize NVS Preferences & Load Saved Player ID
+  // Player ID comes from GUN above; anything saved by older firmware is ignored
   prefs.begin("lasertag", false);
-  nodeId = prefs.getString("node_id", DEFAULT_NODE_ID);
   buzzerActive = prefs.getBool("buzzer_active", false);
-
-  // Check for Trigger-Hold Player ID Config Mode at Boot
-  if (digitalRead(TRIGGER_PIN) == LOW) {
-    // User is holding trigger at power-on!
-    // Play alert double-beep to confirm Config Mode entered
-    tone(BUZZER_PIN, 1500, 100);
-    delay(150);
-    tone(BUZZER_PIN, 2000, 150);
-    delay(300);
-
-    int selected = 1;
-    if (nodeId.length() >= 2 && nodeId[0] == 'P') {
-      int cur = nodeId.substring(1).toInt();
-      if (cur >= 1 && cur <= 8) selected = cur;
-    }
-
-    while (digitalRead(TRIGGER_PIN) == LOW) {
-      displayPlayerHUD(selected);
-      uint16_t freq = 500 + (selected * 150);
-      tone(BUZZER_PIN, freq, 140);
-      Serial.printf("[CONFIG] Selecting Player: P%d\n", selected);
-
-      // Hold this selection for 750ms or until trigger is released
-      unsigned long t0 = millis();
-      while (millis() - t0 < 750) {
-        if (digitalRead(TRIGGER_PIN) == HIGH) break;
-        delay(10);
-      }
-      if (digitalRead(TRIGGER_PIN) == HIGH) break;
-
-      // Advance to next player: 1 -> 2 -> ... -> 8 -> 1
-      selected = (selected % 8) + 1;
-    }
-
-    // Trigger released! Save selected player ID
-    nodeId = "P" + String(selected);
-    prefs.putString("node_id", nodeId);
-    Serial.printf("[CONFIG] Locked in & Saved to Flash: %s\n", nodeId.c_str());
-
-    // Play confirmation rising chime
-    tone(BUZZER_PIN, 800, 80); delay(100);
-    tone(BUZZER_PIN, 1200, 80); delay(100);
-    tone(BUZZER_PIN, 1600, 250); delay(300);
-
-    // Flash selected HUD representation 3 times
-    for (int f = 0; f < 3; f++) {
-      displayPlayerHUD(selected);
-      delay(100);
-      setHUD(false, false, false, false, false);
-      delay(100);
-    }
-  } else {
-    Serial.printf("[BOOT] Loaded Player ID: %s\n", nodeId.c_str());
-  }
+  Serial.printf("[BOOT] Gun: %s %d (%s)\n", nodeId.substring(1).toInt() > 4 ? "RED" : "BLUE",
+                (nodeId.substring(1).toInt() - 1) % 4 + 1, nodeId.c_str());
 
   // Boot Chime & 5-LED Sweep
   PLAY(M_BOOT, PRIO_CRITICAL);
@@ -1262,7 +1216,7 @@ void setup() {
   int pNum = nodeId.substring(1).toInt();
   if (pNum >= 1 && pNum <= 8) {
     displayPlayerHUD(pNum);
-    delay(350);
+    delay(1500);
     setHUD(false, false, false, false, false);
   }
 
